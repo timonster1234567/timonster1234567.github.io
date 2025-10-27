@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+		#ball {
+			width: 100px;
+			height: 100px;l
+			/*background-color: rgb(Math.random()*255, Math.random()*255, Math.random()*255);*/
+			background-color: skyblue;
+			border-radius: 100000px;
+			background-repeat: no-repeat;
+			margin-left: 50%;
+
+			animation-name: bounce;
+			animation-duration: 1s;
+			animation-iteration-count: infinite;
+			animation-timing-function: cubic-bezier(0, 0.44, 0.3, 1);
+			/*animation-timing-function: cubic-bezier(0, 0.44, 0.56, 1);*/
+		}
+
+		@keyframes bounce {
+			0% {
+				transform: translateY(0);
+				animation-timing-function: cubic-bezier(0.44, 0, 1, 0.3);
+			}
+
+			50% {
+				transform: translateY(80vh);
+				animation-timing-function: cubic-bezier(0, 0.44, 0.3, 1);			}
+
+			100% {
+				transform: translateY(0);
+				animation-timing-function: cubic-bezier(0.44, 0, 1, 0.3);
+			}
+		}
+	</style>
+</head>
+<body>
+	<div id = "ball">
+	</div>
+</body>
+</html>
