@@ -24,6 +24,7 @@
 	font-family: "Inria Serif", serif;
 		font-weight: 400;
 		font-style: normal;
+	box-shadow: 4px 4px 15px 2.5px rgb(157, 157, 163)
 }
 
 .links {
@@ -31,12 +32,14 @@
 	margin-left: 4.25%;
 	justify-content: flex-end;
 	padding: 7px;
+	transition: 0.3s;
 }
 
 .links:hover {
 	background-color: rgb(207, 207, 213);
 	transition: 0.3s;
 	cursor: pointer;
+	transform: scale(1.05);
 }
 
 #logo {
@@ -44,7 +47,7 @@
 	background: rgb(195, 203, 211);
 	width:40px;
 	height:40px;
-	/*text-align: center;*/
+	text-align: center;
 	justify-content: center;
 	align-items: center;
 	margin-right: 56%;
@@ -58,7 +61,6 @@
   height: 100vh;
   /* Allow the container to scroll vertically */
   overflow-y: scroll;
-
   font-family: "Inria Serif", serif;
 		font-weight: 400;
 		font-style: normal;
@@ -87,6 +89,17 @@
 }
 
 .entries {
-	display:inline-block;
-	
+	/*display:inline-block;*/
+	display: flex;
+  align-items: center;
+  /*gap: 10px;*/
+  background-color: rgb(237, 237, 243);
+  border-radius: 20px;
+  padding: 20px;
+  width: 80vw;
+}
+
+.whole_journal {
+	display: block;
+
 }

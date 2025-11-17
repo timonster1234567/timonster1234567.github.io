@@ -6,46 +6,111 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Inria+Serif:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
 	<!-- <style>
-		* {
-			padding: 0;
-			margin: 0;
-		}
+		/*<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inria+Serif:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">*/
+* {
+	padding: 0;
+	margin: 0;
+	scroll-behavior: smooth;
+
+}
 
 
-		#topbar {
-			display: inline-flex;
-			align-items: center;
-			background: rgb(237, 237, 243);
-			width: 97.5%;
-			height: 45px;
-			padding: 10px;
-			margin-left: 0.5vw;
-			margin-top: 0.5vw;
-			border-radius: 20px;
-			font-size: 25px;
-			font-family: "Inria Serif", serif;
-  			font-weight: 400;
-  			font-style: normal;
-		}
 
-		.links {
-			border-radius: 0;
-			margin-left: 5%;
-			justify-content: flex-end;
-		}
+#topbar {
+	display: inline-flex;
+	align-items: center;
+	background: rgb(237, 237, 243);
+	width: 97.5%;
+	height: 45px;
+	padding: 10px;
+	margin-left: 0.5vw;
+	margin-top: 0.5vw;
+	border-radius: 20px;
+	font-size: 25px;
+	font-family: "Inria Serif", serif;
+		font-weight: 400;
+		font-style: normal;
+}
 
-		#logo {
-			border-radius:100000px;
-			background: rgb(195, 203, 211);
-			width:40px;
-			height:40px;
-			/*text-align: center;*/
-			justify-content: center;
-			align-items: center;
-			margin-right: 56%;
+.links {
+	border-radius: 10px;
+	margin-left: 4.25%;
+	justify-content: flex-end;
+	padding: 7px;
+}
 
-		}
-	</style> -->
+.links:hover {
+	background-color: rgb(207, 207, 213);
+	transition: 0.3s;
+	cursor: pointer;
+}
+
+#logo {
+	border-radius:100000px;
+	background: rgb(195, 203, 211);
+	width:40px;
+	height:40px;
+	/*text-align: center;*/
+	justify-content: center;
+	align-items: center;
+	margin-right: 56%;
+}
+
+	/* Container styles */
+.wholething {
+  /* Enables vertical scroll snapping */
+  scroll-snap-type: y mandatory;
+  /* Make the container full-screen */
+  height: 100vh;
+  /* Allow the container to scroll vertically */
+  overflow-y: scroll;
+  font-family: "Inria Serif", serif;
+		font-weight: 400;
+		font-style: normal;
+}
+
+/* Child page styles */
+.scroll-page {
+  /* Make each page take up the full screen */
+  height: 100vh;
+  /* Align the start of each page with the top of the container */
+  scroll-snap-align: start;
+  /* Add styling for visibility */
+  display: flex;
+  /*align-items: center;*/
+  justify-content: center;
+  
+}
+
+.header {
+	margin-top: 3vh;
+	font-size: 100px;
+}
+
+.marker {
+	width:0.1px;
+	height:0.1px;
+}
+
+.entries {
+	/*display:inline-block;*/
+	display: flex;
+  align-items: center;
+  /*gap: 10px;*/
+  background-color: rgb(237, 237, 243);
+  border-radius: 20px;
+  padding: 20px;
+  width: 80vw;
+}
+
+.whole_journal {
+	display: block;
+
+}
+</style> -->
+    <link rel="stylesheet" type="text/css" href="website_cs1.css">
 </head>
 <body>
 	<div class = "wholething">
@@ -79,15 +144,28 @@
 				Journal
 				<!-- <div class = "entries"></div> -->
 			</div>
-			<div class = "entries">
-				<div>
-					DATE
+			<div class = "whole_journal">
+				<div class = "entries">
+					<div>
+						DATE
+					</div>
+					<div>
+						|
+					</div>
+					<div>
+						Journal entry
+					</div>
 				</div>
-				<div>
-					|
-				</div>
-				<div>
-					Journal entry
+				<div class = "entries">
+					<div>
+						DATE
+					</div>
+					<div>
+						|
+					</div>
+					<div>
+						Journal entry
+					</div>
 				</div>
 			</div>
 		</div>
@@ -108,4 +186,5 @@
 1. 9/22 - I started my website, and added the topbar (no functionality)
 2. 9/29 - I added snapping while scrolling and the topbars functionality
 3. 10/6 - I started the journal page
-4. 10/16 - I added the journal entries and uploaded the website to github.-->
+4. 10/16 - I added the journal entries and uploaded the website to github.
+5. 10/30 - I made my person card.-->

@@ -1,0 +1,35 @@
+#main{
+	background-color: brown;
+	width: 100px;
+	height: 100px;
+	border-radius: 1000px;
+}
+
+.button {
+	background-color: green;
+	width: 200px;
+	height: 60px;
+	border-radius:20px;
+	margin: 5px;
+	text-align: center;
+	align-items: center;
+}
+
+#wholething {
+	display:flex;
+}
+
+#leftside {
+	width: 50vw;
+}
+
+
+#box {
+	width: 603.2795093px;
+	height: 498.247902px;
+	background-color: grey;
+}
+
+#test {
+	margin-left:1px;
+}
