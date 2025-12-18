@@ -5,6 +5,11 @@
 	border-radius: 1000px;
 }
 
+#main:hover {
+	transform: scale(1.1);
+	cursor: pointer;
+}
+
 .button {
 	background-color: rgb(50, 205, 100);
 	width: 200px;

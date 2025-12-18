@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+		#word {
+			font-size:100px;
+		}
+	</style>
+	
+</head>
+<body>
+	<div id = "word">click to start</div>
+	
+	<script>
+		list=["Bananas", "Potatoes", "Bacon", "Sushi", "Tacos", "Chicken Fried Steak", "Fried Tarantulas",  "apple", "Peanut Butter"]
+		let number = Math.round(Math.random()*9)
+		let picker = Math.round(Math.random()*12)
+		counter = 0
+		console.log(number, picker)
+		addEventListener("click", function() {
+			console.log(counter)
+			if(counter==picker) {
+				document.getElementById("word").innerText="imposter"
+			} else {
+				document.getElementById("word").innerText=list[number]
+			}
+
+
+			counter++
+
+			setTimeout(() => {
+  				document.getElementById("word").innerText="click"
+			}, 1000);
+		})
+	</script>
+</body>
+</html>

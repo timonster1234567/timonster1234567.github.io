@@ -1,0 +1,24 @@
+#cannon {
+	background-color:black;
+	width:200px;
+	height:80px;
+	border-radius:20px;
+	transform: rotate(-25deg);
+	margin-top:80vh;
+	position: absolute;
+}
+
+#projectile {
+	background-color:red;
+	width:50px;
+	height:20px;
+	border-radius:20px;
+	transform: rotate(-25deg);
+	margin-top:87.5vh;
+	margin-left:10px;
+	position: absolute;
+}
+
+/*#work {
+	position:absolute;
+}*/
