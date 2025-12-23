@@ -122,14 +122,14 @@ const categories = [
 		let number = Math.round(Math.random()*31)
 		let picker = Math.round(Math.random()*5)
 		counter = 0
-		document.getElementById("cat").innerText = categories[listpicker[0]]
+		document.getElementById("cat").innerText = categories[listpicker][0]
 		console.log(number, picker)
-		addEventListener("clickend", function() {
+		addEventListener("touchend", function() {
 			console.log(counter)
 			if(counter==picker) {
 				document.getElementById("word").innerText="imposter"
 			} else {
-				document.getElementById("word").innerText=categories[listpicker[number]]
+				document.getElementById("word").innerText=categories[listpicker][number]
 			}
 
 
@@ -137,7 +137,7 @@ const categories = [
 
 			setTimeout(() => {
   				document.getElementById("word").innerText="click"
-			}, 1000);
+			}, 3000);
 		})
 	</script>
 </body>
