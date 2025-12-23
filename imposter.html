@@ -9,20 +9,127 @@
 	
 </head>
 <body>
+	<div id = "cat"></div> 
 	<div id = "word">click to start</div>
 	
 	<script>
-		list=["Bananas", "Potatoes", "Bacon", "Sushi", "Tacos", "Chicken Fried Steak", "Fried Tarantulas",  "apple", "Peanut Butter"]
-		let number = Math.round(Math.random()*9)
-		let picker = Math.round(Math.random()*12)
+		
+const categories = [
+  [
+    "Fruits",
+    "Apple","Banana","Orange","Strawberry","Blueberry","Raspberry","Blackberry","Mango",
+    "Pineapple","Papaya","Kiwi","Peach","Plum","Apricot","Cherry","Grape","Watermelon",
+    "Cantaloupe","Honeydew","Lemon","Lime","Grapefruit","Pomegranate","Fig","Date",
+    "Guava","Passionfruit","Lychee","Dragonfruit","Pear","Cranberry","Tangerine"
+  ],
+  [
+    "Animals",
+    "Dog","Cat","Horse","Cow","Pig","Sheep","Goat","Chicken","Duck","Goose","Turkey",
+    "Deer","Elk","Moose","Bear","Wolf","Fox","Lion","Tiger","Leopard","Cheetah",
+    "Elephant","Giraffe","Zebra","Rhinoceros","Hippopotamus","Kangaroo","Koala",
+    "Panda","Monkey","Gorilla","Chimpanzee"
+  ],
+  [
+    "Colors",
+    "Red","Blue","Yellow","Green","Orange","Purple","Pink","Brown","Black","White",
+    "Gray","Cyan","Magenta","Teal","Turquoise","Navy","Maroon","Olive","Lime","Indigo",
+    "Violet","Gold","Silver","Bronze","Beige","Ivory","Lavender","Mint","Coral",
+    "Salmon","Peach","Chocolate"
+  ],
+  [
+    "Countries",
+    "United States","Canada","Mexico","Brazil","Argentina","Chile","Peru","Colombia",
+    "United Kingdom","Ireland","France","Germany","Spain","Portugal","Italy",
+    "Netherlands","Belgium","Switzerland","Austria","Poland","Norway","Sweden",
+    "Finland","Denmark","Russia","China","Japan","South Korea","India","Australia",
+    "New Zealand","South Africa"
+  ],
+  [
+    "Sports",
+    "Soccer","Basketball","Baseball","Softball","Football","Rugby","Cricket","Hockey",
+    "Ice Hockey","Field Hockey","Tennis","Badminton","Table Tennis","Volleyball",
+    "Beach Volleyball","Handball","Lacrosse","Golf","Swimming","Diving","Water Polo",
+    "Rowing","Canoeing","Kayaking","Cycling","Mountain Biking","Boxing","Wrestling",
+    "Judo","Karate","Taekwondo","Fencing"
+  ],
+  [
+    "Musical Instruments",
+    "Piano","Keyboard","Organ","Guitar","Acoustic Guitar","Electric Guitar",
+    "Bass Guitar","Violin","Viola","Cello","Double Bass","Flute","Piccolo","Clarinet",
+    "Oboe","Bassoon","Saxophone","Trumpet","Trombone","French Horn","Tuba","Drums",
+    "Snare Drum","Bass Drum","Cymbals","Xylophone","Marimba","Vibraphone","Harp",
+    "Banjo","Mandolin","Ukulele"
+  ],
+  [
+    "Vehicles",
+    "Car","Sedan","Coupe","Hatchback","Convertible","Wagon","SUV","Pickup Truck",
+    "Van","Minivan","Bus","Coach","Motorcycle","Scooter","Moped","Bicycle",
+    "Tricycle","Electric Bike","Train","Tram","Subway","Locomotive","Airplane","Jet",
+    "Helicopter","Glider","Boat","Sailboat","Yacht","Ferry","Submarine","Hovercraft"
+  ],
+  [
+    "Foods",
+    "Bread","Rice","Pasta","Noodles","Pizza","Burger","Sandwich","Soup","Stew",
+    "Salad","Omelet","Pancakes","Waffles","Cereal","Yogurt","Cheese","Butter","Milk",
+    "Eggs","Chicken","Beef","Pork","Fish","Shrimp","Tofu","Beans","Lentils",
+    "Chickpeas","Applesauce","Ice Cream","Cake","Cookies"
+  ],
+  [
+    "Occupations",
+    "Doctor","Nurse","Teacher","Professor","Engineer","Architect","Programmer",
+    "Designer","Artist","Musician","Actor","Director","Producer","Writer","Editor",
+    "Journalist","Photographer","Videographer","Lawyer","Judge","Paralegal",
+    "Accountant","Auditor","Economist","Banker","Teller","Analyst","Consultant",
+    "Manager","Administrator","Coordinator","Recruiter"
+  ],
+  [
+    "Book Genres",
+    "Fiction","Nonfiction","Fantasy","Science Fiction","Mystery","Thriller","Horror",
+    "Romance","Historical","Biography","Autobiography","Memoir","Poetry","Drama",
+    "Play","Satire","Humor","Essay","Anthology","Graphic Novel","Young Adult",
+    "Children's","Adventure","Dystopian","Utopian","Magical Realism","Mythology",
+    "Folklore","Fairy Tale","Western","Noir","Cyberpunk"
+  ],
+  [
+    "Weather Phenomena",
+    "Rain","Drizzle","Downpour","Snow","Sleet","Hail","Graupel","Fog","Mist","Smog",
+    "Cloud","Overcast","Sunshine","Heatwave","Cold Snap","Frost","Ice Storm",
+    "Thunder","Lightning","Thunderstorm","Hurricane","Typhoon","Cyclone","Tornado",
+    "Waterspout","Dust Storm","Sandstorm","Blizzard","Whiteout","Monsoon","Rainbow",
+    "Aurora"
+  ],
+  [
+    "Tools",
+    "Hammer","Mallet","Sledgehammer","Screwdriver","Phillips Screwdriver",
+    "Flathead Screwdriver","Wrench","Adjustable Wrench","Socket Wrench","Pliers",
+    "Needle-nose Pliers","Lineman Pliers","Cutter","Utility Knife","Handsaw",
+    "Hacksaw","Circular Saw","Jigsaw","Drill","Drill Bit","Chisel","Plane","File",
+    "Rasp","Level","Tape Measure","Square","Clamp","Vise","Anvil","Sander","Grinder"
+  ],
+  [
+    "School Subjects",
+    "Mathematics","Algebra","Geometry","Trigonometry","Calculus","Statistics",
+    "Biology","Chemistry","Physics","Earth Science","Environmental Science",
+    "Astronomy","Computer Science","Programming","Engineering","Robotics",
+    "History","World History","Geography","Civics","Economics","Psychology",
+    "Sociology","Philosophy","Literature","English","Creative Writing","Art",
+    "Music","Theater","Physical Education","Health"
+  ]
+];
+
+
+		let listpicker = Math.round(Math.random()*12)
+		let number = Math.round(Math.random()*31)
+		let picker = Math.round(Math.random()*5)
 		counter = 0
+		document.getElementById("cat").innerText = categories[listpicker[0]]
 		console.log(number, picker)
-		addEventListener("click", function() {
+		addEventListener("clickend", function() {
 			console.log(counter)
 			if(counter==picker) {
 				document.getElementById("word").innerText="imposter"
 			} else {
-				document.getElementById("word").innerText=list[number]
+				document.getElementById("word").innerText=categories[listpicker[number]]
 			}
 
 
