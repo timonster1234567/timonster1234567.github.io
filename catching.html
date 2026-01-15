@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+		#you {
+			position:absolute;
+			width:100px;
+			height:100px;
+      		background-color: gray;
+      		border-radius: 100px;
+      		border-radius:10000px;
+
+		}
+
+	    #monster {
+	    	position:absolute;
+	    	width:10px;
+	    	height:10px;
+	      	background-color: red;
+	      	border-radius: 100px;
+	      	border-radius:10000px;
+	      	transition: 0.5s cubic-bezier(1, 1, 1, 1);
+
+	      	/*margin-top: 785px;*/
+	    }
+
+    * {
+      margin:0;
+      padding:0;
+    }
+	</style>
+	
+</head>
+<body>
+	<div id = "you"></div> 
+	<div id = "monster" onclick="whenClicked()"></div>
+	
+	<script>
+		function moving () {
+			monster.style.marginLeft = Math.random()*1460 + "px"
+			monster.style.marginTop = Math.random()*785 + "px"
+		}
+
+		you.addEventListener("keydown", function(event) {
+			if (event.key === "ArrowUp") {
+                event.preventDefault();
+                console.log("hello")
+            }
+        })
+
+		setInterval(moving, 500)
+
+	</script>
+</body>
+</html>

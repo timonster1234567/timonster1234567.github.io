@@ -3,14 +3,29 @@
 <head>
 	<style>
 		#word {
-			font-size:100px;
+			font-size:0;
+      background-color: gray;
+      border-radius: 100px;
+      text-align:center;
+
 		}
+
+    #cat {
+      font-size:0px;
+    }
+
+    * {
+      margin:0;
+      padding:0;
+    }
 	</style>
 	
 </head>
 <body>
 	<div id = "cat"></div> 
-	<div id = "word">click to start</div>
+	<div id = "word" onclick="whenClicked()">click to start</div>
+  <div id = "type_answer">type how many players here:</div>
+  <input id = "players"></input>
 	
 	<script>
 		
@@ -118,27 +133,88 @@ const categories = [
 ];
 
 
-		let listpicker = Math.round(Math.random()*12)
-		let number = Math.round(Math.random()*31)
-		let picker = Math.round(Math.random()*5)
+		let listpicker = Math.round(Math.random()*13 - 0.5)
+		let number = Math.round(Math.random()*31 - 0.5) + 1
+		// let picker = Math.round(Math.random()*6 - 0.5)
+    let picker = 0
 		counter = 0
+
+    showing = 0
+
 		document.getElementById("cat").innerText = categories[listpicker][0]
+
 		console.log(number, picker)
-		addEventListener("touchend", function() {
-			console.log(counter)
-			if(counter==picker) {
-				document.getElementById("word").innerText="imposter"
-			} else {
-				document.getElementById("word").innerText=categories[listpicker][number]
-			}
 
 
-			counter++
+		// addEventListener("click", function() {
+    //   if(showing==0) {
+  	// 		console.log(counter)
+  	// 		if(counter==picker) {
+  	// 			document.getElementById("word").innerText="imposter"
+  	// 		} else {
+  	// 			document.getElementById("word").innerText=categories[listpicker][number]
+  	// 		}
 
-			setTimeout(() => {
-  				document.getElementById("word").innerText="click"
-			}, 3000);
-		})
+
+  	// 		counter++
+
+    //     showing = 1
+    //   } else if(showing == 1) {
+    //       document.getElementById("word").innerText="click"
+    //       showing = 0
+    //   }
+
+		// })
+
+    function whenClicked() {
+      if(showing==0) {
+        console.log(counter)
+        if(counter==picker) {
+          document.getElementById("word").innerText="imposter"
+        } else {
+          document.getElementById("word").innerText=categories[listpicker][number]
+        }
+
+
+        counter++
+
+        showing = 1
+      } else if(showing == 1) {
+          document.getElementById("word").innerText="click"
+          showing = 0
+      }
+    }
+
+
+    players.addEventListener("keypress", function(event) {
+  // Check if the key pressed is the Enter key (keyCode 13)
+      if (event.key === "Enter") {
+        // Prevent the default form submission behavior (if inside a form)
+        event.preventDefault();
+        // Trigger the button click
+        console.log("hello")
+        playersInside = document.getElementById("players")
+        type_answerInside = document.getElementById("type_answer")
+
+        picker = Math.round(Math.random()*playersInside.value - 0.5)
+        console.log(picker)
+
+        playersInside.style.width = 0
+        playersInside.style.height = 0
+        playersInside.style.border = "none"
+
+        type_answerInside.innerText = ""
+
+        document.getElementById("word").style.fontSize = 100 + "px"
+        document.getElementById("cat").style.fontSize = 50 + "px"
+      }
+    });
+
+
 	</script>
 </body>
 </html>
+
+<!-- change touchend to click -->
+
+<!-- 12/5/2026 - I made imposter but you can't choose the number of players -->
