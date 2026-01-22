@@ -3,12 +3,57 @@
 <head>
 	<style>
 		.confetti {
-			width: 10px;
-			height:5px;
+			width: 30px;
+			height:10px;
 			background-color:blue;
 			position: absolute;
+
+			animation-name: fall;
+			animation-duration: 1.5s;
+			animation-iteration-count: infinite;
+
+			/*animation-name: rotation;
+			animation-duration: 1s;
+			animation-iteration-count: infinite;*/
 		}
 
+		@keyframes fall {
+			0% {
+					transform: rotate(-25deg) translateX(20px) rotateX(-85deg) rotateY(0deg);
+			}
+
+			25% {
+				transform: rotateY(-85deg);
+			}
+
+			50% {
+					transform: rotate(25deg) translateX(-20px) rotateX(85deg) ;
+			}
+
+			25% {
+				transform: rotateY(85deg);
+			}
+
+			100% {
+					transform: rotate(-25deg) translateX(20px) rotateX(-85deg) rotateY(0deg);
+		}
+	}	
+
+	@/*keyframes rotation {
+			0% {
+					transform: scaleX(0);
+			}
+
+
+			50% {
+					transform: scaleX(1);
+			}
+
+
+			100% {
+					transform:  scaleX(0);
+		}
+	}*/
 		body {
 			overflow: hidden;
 		}
@@ -55,6 +100,12 @@
 
 			// 	}
 				let listid = []
+				// let randomSpin1 = Math.random()*(-60) + "deg"
+				// let randomSpin2 = Math.random()*60 + "deg"
+				// confetti.style.setProperty("randomSpin1")
+				// confetti.style.setProperty("randomSpin2")
+
+
 				setInterval(function() {
 					let piece = document.createElement("div")
 					piece.classList.add("confetti")
@@ -69,13 +120,17 @@
 					document.getElementById(newid).style.marginLeft = Math.random()*1400 + "px"
 					document.getElementById(newid).style.marginTop = 0 + "px"
 					document.getElementById(newid).style.backgroundColor = "rgb(" + Math.random()*255 + ", " + Math.random()*255 + ", " + Math.random()*255 + ")"
+					document.getElementById(newid).style.transform = "rotate(" + Math.random() * 360 + ")"
+
+					let randomSpin1 = Math.random()*(-60) + "deg"
+					let randomSpin2 = Math.random()*60 + "deg"
 				}, 200)
 
 
 				setInterval(function() {
 							for(let i = 0; i<listid.length; i++) {
 									
-									console.log(parseInt(document.getElementById(listid[i]).style.marginTop.replace(/[px]/g, '')) + 10 + "px")
+									// console.log(parseInt(document.getElementById(listid[i]).style.marginTop.replace(/[px]/g, '')) + 10 + "px")
 									document.getElementById(listid[i]).style.marginTop = parseInt(document.getElementById(listid[i]).style.marginTop.replace(/[px]/g, '')) + 1 + "px"
 									// console.log(document.getElementById(listid[1]).style.marginTop)
 									if(parseInt(document.getElementById(listid[i]).style.marginTop.replace(/[px]/g, '')) > 1000) {
