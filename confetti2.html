@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+		.confetti {
+			width: 30px;
+			height:10px;
+			background-color:blue;
+			position: absolute;
+
+			/*animation-name: fall;
+			animation-duration: 1.5s;
+			animation-iteration-count: infinite;*/
+
+			/*animation-name: rotation;
+			animation-duration: 1s;
+			animation-iteration-count: infinite;*/
+		}
+
+		@keyframes fall {
+			0% {
+					transform: rotate(-25deg) translateX(20px) rotateX(-85deg) rotateY(0deg);
+			}
+
+			25% {
+				transform: rotateY(-85deg);
+			}
+
+			50% {
+					transform: rotate(25deg) translateX(-20px) rotateX(85deg) ;
+			}
+
+			25% {
+				transform: rotateY(85deg);
+			}
+
+			100% {
+					transform: rotate(-25deg) translateX(20px) rotateX(-85deg) rotateY(0deg);
+		}
+	}	
+
+	@/*keyframes rotation {
+			0% {
+					transform: scaleX(0);
+			}
+
+
+			50% {
+					transform: scaleX(1);
+			}
+
+
+			100% {
+					transform:  scaleX(0);
+		}
+	}*/
+		body {
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+	<div id = "hello"></div>
+
+	<script>
+				let listid = []
+				let listX = []
+				let listY = []
+				let velocityY = 0
+				let velocityX = 0
+
+
+				function makeConfetti() {
+					let colors = ["rgb(173, 168, 182)", "rgb(255, 238, 219)", "rgb(76, 59, 77)"]
+					let piece = document.createElement("div")
+					piece.classList.add("confetti")
+					newid = Math.random() + "t"
+					listid.push(newid)
+
+					// console.log(listid)
+
+					piece.id = newid
+
+					document.body.appendChild(piece)
+					// document.getElementById(newid).style.marginLeft = Math.random()*1400 + "px"
+					document.getElementById(newid).style.marginLeft = 700 + "px"
+					document.getElementById(newid).style.marginTop = 100 + "px"
+					// document.getElementById(newid).style.backgroundColor = "rgb(" + Math.random()*255 + ", " + Math.random()*255 + ", " + Math.random()*255 + ")"
+					document.getElementById(newid).style.backgroundColor = colors[Math.round(Math.random()*2)]
+					document.getElementById(newid).style.transform = "rotate(" + Math.random() * 360 + ")"
+
+					velocityY = 20*Math.random()
+					// velocityX = (20-velocityY) + 5*(Math.random()-0.5)
+					velocityX = 40*(Math.random() - 0.5)
+
+					
+
+					listX.push(velocityX)
+					listY.push(velocityY)
+				}
+
+				for(let i = 0; i < 100; i++) {
+					makeConfetti()
+				}
+
+				// setInterval(makeConfetti, 100)
+
+
+				setInterval(function() {
+							for(let i = 0; i<listid.length; i++) {
+									let new_inside = document.getElementById(listid[i])
+									console.log(parseInt(document.getElementById(listid[i]).style.marginTop.replace(/[px]/g, '')) + 10 + "px")
+									new_inside.style.marginTop = parseInt(100*new_inside.style.marginTop.replace(/[px]/g, ''))/100 + listY[i] + "px"
+									new_inside.style.marginLeft = parseInt(100*new_inside.style.marginLeft.replace(/[px]/g, ''))/100 + listX[i] + "px"
+
+									if(listY[i] >= 1 || listY[i]<= -1) {
+										listY[i] = listY[i] *0.93
+										// console.log(document.getElementById(listid[i]).style.marginTop, velocityY)
+									} else {
+										
+											listY[i] = 1
+										
+									}
+
+									if(listX[i]>=0.01 || listX[i]<=-0.01) {
+										listX[i] = listX[i] * 0.93
+									} else {
+										listX[i] = 0
+									}
+
+									if(parseInt(document.getElementById(listid[i]).style.marginTop.replace(/[px]/g, '')) > 1000) {
+										listid.splice(0, 1)
+									}
+							}
+				}, 10)
+	</script>
+</body>
+</html>
+
+
+<!-- Jounral entries:
+1. January 22 - I added rotation to my confetti which i think looks really cool. -->

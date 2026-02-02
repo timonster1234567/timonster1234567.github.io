@@ -60,9 +60,23 @@
 	</style>
 </head>
 <body>
+	<button id="button">click</button>
+	<input type="color" value="#ff0000" id="picker">
+	<input type="range" min="1" max="10" step="1" value="2" id = "number">
 	<div id = "hello"></div>
 
 	<script>
+		let colorPicker = document.getElementById("picker")
+		console.log(colorPicker.value)
+		let numberPicked = document.getElementById("number")
+		dropConfettiButton = document.getElementById("button")
+		dropConfettiButton.addEventListener("click", function() {
+			for(let i = 0; i<numberPicked.value; i++) {
+				makeConfetti()
+			}
+		})
+
+
 			// function makeConfetti (input) {
 			// 	let piece = document.createElement("div")
 			// 	piece.classList.add("confetti")
@@ -106,7 +120,18 @@
 				// confetti.style.setProperty("randomSpin2")
 
 
-				setInterval(function() {
+				// setInterval(function() {
+				// 	makeConfetti()
+				// }, 200)
+
+				// for(let i = 0; i<=300;i++) {
+				// 	makeConfetti()
+				// }
+
+				
+
+				function makeConfetti() {
+					let colors = ["red", "green", "blue"]
 					let piece = document.createElement("div")
 					piece.classList.add("confetti")
 					newid = Math.random() + "t"
@@ -119,13 +144,13 @@
 					document.body.appendChild(piece)
 					document.getElementById(newid).style.marginLeft = Math.random()*1400 + "px"
 					document.getElementById(newid).style.marginTop = 0 + "px"
-					document.getElementById(newid).style.backgroundColor = "rgb(" + Math.random()*255 + ", " + Math.random()*255 + ", " + Math.random()*255 + ")"
+					// document.getElementById(newid).style.backgroundColor = "rgb(" + Math.random()*255 + ", " + Math.random()*255 + ", " + Math.random()*255 + ")"
+					document.getElementById(newid).style.backgroundColor = colorPicker.value
 					document.getElementById(newid).style.transform = "rotate(" + Math.random() * 360 + ")"
 
 					let randomSpin1 = Math.random()*(-60) + "deg"
 					let randomSpin2 = Math.random()*60 + "deg"
-				}, 200)
-
+				}
 
 				setInterval(function() {
 							for(let i = 0; i<listid.length; i++) {
@@ -141,3 +166,7 @@
 	</script>
 </body>
 </html>
+
+
+<!-- Jounral entries:
+1. January 22 - I added rotation to my confetti which i think looks really cool. -->
