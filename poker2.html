@@ -2,411 +2,764 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Texas Hold'em - Debugged Version</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poker Game</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #2c3e50; color: white; text-align: center; margin: 0; padding: 20px; }
-        .hidden { display: none !important; }
-        
-        /* Screens */
-        .screen { max-width: 800px; margin: 0 auto; background: #34495e; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        
-        /* Game Elements */
-        .table-area { background: #27ae60; padding: 20px; border-radius: 50px; border: 5px solid #f1c40f; margin: 20px 0; min-height: 200px; }
-        .card { background: white; color: black; display: inline-block; width: 40px; height: 56px; margin: 2px; border-radius: 4px; line-height: 56px; font-weight: bold; border: 1px solid #999; vertical-align: middle; }
-        .card.red { color: #e74c3c; }
-        .player-row { background: rgba(0,0,0,0.2); margin: 5px 0; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
-        .active-turn { border: 2px solid #f1c40f; background: rgba(241, 196, 15, 0.2); }
-        
-        /* Buttons & Inputs */
-        button { padding: 10px 15px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; margin: 2px; }
-        .btn-green { background: #2ecc71; color: white; }
-        .btn-blue { background: #3498db; color: white; }
-        .btn-red { background: #e74c3c; color: white; }
-        input { padding: 10px; border-radius: 4px; border: none; width: 60%; }
-        
-        /* Lobby */
-        #room-list { text-align: left; margin-top: 20px; border-top: 1px solid #7f8c8d; padding-top: 10px; }
-        .room-item { background: #2c3e50; padding: 10px; margin: 5px 0; border: 1px solid #7f8c8d; display: flex; justify-content: space-between; border-radius: 5px; }
-    </style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #2c3e50; color: white; text-align: center; margin: 0; padding: 20px; }
+    .hidden { display: none !important; }
+     
+    /* Containers */
+    #login-screen, #lobby-screen { max-width: 600px; margin: 0 auto; }
+     
+    /* Inputs & Buttons */
+    input { padding: 12px; border-radius: 8px; border: none; margin: 5px; width: 200px; text-align: center; font-size: 16px; }
+    button { padding: 12px 24px; cursor: pointer; border: none; border-radius: 8px; font-weight: bold; margin: 5px; color: white; background: #2980b9; transition: 0.2s; font-size: 14px; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 4px 0 #1a5276; }
+    button:active { transform: translateY(0); box-shadow: none; }
+
+    /* Room List Styles */
+    #room-list-container {
+        margin-top: 30px;
+        background: rgba(0,0,0,0.2);
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .room-item {
+        background: #34495e;
+        margin: 5px 0;
+        padding: 10px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .room-item:hover {
+        background: #2c3e50;
+        border-color: #f1c40f;
+    }
+
+    /* Game Board */
+    .board { 
+        background: radial-gradient(#27ae60, #1e8449); 
+        padding: 20px; border-radius: 20px; 
+        border: 8px solid #145a32; 
+        box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+        margin-top: 20px; min-height: 250px; position: relative; 
+    }
+     
+    /* Card Styles */
+    .card-container {
+        display: inline-block;
+        width: 50px; height: 70px;
+        background: white;
+        border-radius: 6px;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        margin: 4px;
+        position: relative;
+        text-align: center;
+        overflow: hidden;
+    }
+    .card-container.back {
+        background: repeating-linear-gradient(45deg, #c0392b, #c0392b 10px, #e74c3c 10px, #e74c3c 20px);
+        border: 2px solid white;
+    }
+    .card-top-left {
+        position: absolute; top: 2px; left: 4px;
+        font-size: 14px; line-height: 1; text-align: center; font-weight: bold;
+    }
+    .card-center-suit {
+        position: absolute; top: 55%; left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 32px;
+    }
+
+    /* Player List */
+    #player-list { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; text-align: left; }
+    .player-row { 
+        background: rgba(0,0,0,0.4); padding: 10px; border-radius: 12px; 
+        display: flex; justify-content: space-between; align-items: center; 
+        border-left: 6px solid transparent; 
+        transition: 0.3s;
+    }
+    .player-row.folded { opacity: 0.5; filter: grayscale(0.8); }
+
+    /* Action Bar */
+    #action-bar { 
+        position: fixed; bottom: 0; left: 0; width: 100%; 
+        background: rgba(0,0,0,0.95); padding: 20px; 
+        display: flex; justify-content: center; align-items: center; gap: 10px; 
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+        z-index: 100;
+    }
+    .stats-box { background: rgba(0,0,0,0.5); padding: 8px 15px; border-radius: 20px; display: inline-block; margin: 5px; min-width: 100px; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); }
+</style>
 </head>
 <body>
 
-    <div id="lobby-screen" class="screen">
-        <h1>Texas Hold'em</h1>
-        <input type="text" id="username" placeholder="Enter Username"><br><br>
-        <button class="btn-green" onclick="createRoom()">Create New Room</button>
+    <div id="login-screen">
+        <h1>♣️ POKER ♠️</h1>
+        <div style="margin-bottom: 20px;">
+            <input type="text" id="username" placeholder="Enter Username First">
+        </div>
+
+        <button onclick="handleCreate()">Create New Room</button>
+        <br><br>
         
-        <div id="room-list">
-            <h3>Available Rooms</h3>
-            <div id="rooms-container">Loading...</div>
+        <div style="border-top: 1px solid #7f8c8d; width: 50%; margin: 20px auto;"></div>
+        
+        <div style="display:flex; justify-content:center; align-items:center;">
+            <input type="text" id="room-code-input" placeholder="CODE" style="text-transform:uppercase; width: 80px;">
+            <button onclick="handleJoin()" style="padding: 12px 15px;">Join by Code</button>
+        </div>
+
+        <div id="room-list-container">
+            <h3>Available Tables</h3>
+            <div id="available-rooms-list">Loading rooms...</div>
         </div>
     </div>
 
-    <div id="loading-screen" class="screen hidden">
-        <h2>Waiting for Host...</h2>
-        <div style="font-size: 40px;">⏳</div>
-        <p>Tell the host to let you in!</p>
-        <button class="btn-red" onclick="location.reload()">Cancel</button>
-    </div>
+    <div id="lobby-screen" class="hidden">
+        <h2>Room: <span id="display-room-code" style="color:#f1c40f">---</span></h2>
+        <button onclick="leaveRoomWrapper()" style="font-size:12px; background:#c0392b; padding:5px 10px;">Leave Room</button>
+        
+        <div id="host-controls" class="hidden" style="margin-bottom: 10px;"></div>
 
-    <div id="game-screen" class="screen hidden">
-        <div style="display:flex; justify-content:space-between;">
-            <span id="room-code-display" style="font-weight:bold; color:#f1c40f;"></span>
-            <button class="btn-red" onclick="leaveGame()">Leave</button>
+        <div class="board">
+            <div style="margin-bottom: 15px;">
+                <div class="stats-box">Pot: $<span id="pot-display">0</span></div>
+                <div class="stats-box">Bet: $<span id="current-bet-display">0</span></div>
+            </div>
+            
+            <div id="community-cards" style="display:flex; justify-content:center; gap:5px; height: 40px; margin-bottom: 10px;">
+                </div>
+
+            <div style="font-weight:bold; color:#ecf0f1; margin-top:10px;">
+                Status: <span id="game-status">Waiting...</span>
+            </div>
         </div>
 
-        <div id="host-area" class="hidden" style="background:#e67e22; padding:10px; margin:10px 0; border-radius:5px;">
-            <div id="host-requests"></div>
-            <button id="start-btn" class="btn-green hidden" onclick="startGame()">DEAL HAND</button>
+        <div style="margin-top:20px;">
+            <div>My Hand:</div>
+            <div id="my-cards" style="display:flex; justify-content:center; gap:5px; margin-top:5px; height:40px;"></div>
         </div>
 
-        <div class="table-area">
-            <div>Pot: $<span id="pot-display">0</span></div>
-            <div id="board-display" style="min-height:60px; margin-top:10px;"></div>
-            <div id="status-display" style="margin-top:10px;">Waiting...</div>
-        </div>
-
-        <div id="players-list"></div>
-
-        <div id="action-bar" class="hidden" style="background:#2c3e50; padding:10px; border-top:2px solid #7f8c8d;">
-            <button class="btn-red" onclick="submitAction('fold')">FOLD</button>
-            <button class="btn-blue" id="call-btn" onclick="submitAction('call')">CALL</button>
-            <input type="number" id="raise-amt" placeholder="Amt" style="width:60px;">
-            <button class="btn-green" onclick="submitAction('raise')">RAISE</button>
-        </div>
+        <div id="player-list"></div>
+        <div id="action-bar" class="hidden"></div>
     </div>
 
 <script>
-    // 1. SETUP
+    // ======================================================
+    // 1. CONFIGURATION
+    // ======================================================
     const SUPABASE_URL = 'https://ijpjvswkzksbtaaywntw.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_x0TmiruQPu8VQm5x_nPfYQ_wEHAcz5m';
-    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const SUPABASE_KEY = 'sb_publishable_x0TmiruQPu8VQm5x_nPfYQ_wEHAcz5m';
+    
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let myId = sessionStorage.getItem('pk_id') || 'u_' + Math.random().toString(36).substr(2, 6);
-    sessionStorage.setItem('pk_id', myId);
-    let myRoom = null;
+    let myUserId = sessionStorage.getItem('poker_user_id'); 
+    if (!myUserId) {
+        myUserId = 'user_' + Math.random().toString(36).substr(2, 9);
+        sessionStorage.setItem('poker_user_id', myUserId);
+    }
+
+    let myRoomCode = null;
     let isHost = false;
-    let mySeat = null;
+    let realtimeChannel = null;
+    let mySeatIndex = null;
+    let myUsername = "Player"; 
+    let isProcessingAction = false; 
 
-    // 2. LOBBY
-    window.onload = function() {
-        setInterval(fetchRooms, 3000);
-        fetchRooms();
-    };
+    // POLL FOR ROOMS ON LOAD
+    setInterval(fetchAvailableRooms, 4000);
+    fetchAvailableRooms();
 
-    async function fetchRooms() {
-        if (myRoom) return;
-        const { data: rooms } = await client.from('rooms').select('*').eq('status', 'WAITING').order('created_at', {ascending: false});
-        const container = document.getElementById('rooms-container');
-        container.innerHTML = '';
-        if (rooms && rooms.length) {
-            rooms.forEach(r => {
-                container.innerHTML += `<div class="room-item">
-                    <span>Room <strong>${r.room_code}</strong></span>
-                    <button class="btn-blue" onclick="joinRequest('${r.room_code}')">Join</button>
-                </div>`;
-            });
-        } else {
-            container.innerHTML = 'No rooms found.';
-        }
-    }
+    // ======================================================
+    // 2. LOBBY & JOINING
+    // ======================================================
 
-    async function createRoom() {
-        const username = document.getElementById('username').value;
-        if (!username) return alert("Enter a username");
-        
-        // Generate a 4-letter code
-        const code = Math.random().toString(36).substr(2, 4).toUpperCase();
-        
-        console.log("Creating room:", code);
+    async function fetchAvailableRooms() {
+        if (!document.getElementById('login-screen').classList.contains('hidden')) {
+            
+            // Try to sort by created_at. If column missing, fallback to unsorted.
+            let query = supabaseClient
+                .from('rooms')
+                .select('*')
+                .eq('status', 'WAITING')
+                .limit(10);
+            
+            // Note: If you ran the SQL snippet, this will work. 
+            // If not, it might ignore order or error, but we catch errors.
+            try {
+                query = query.order('created_at', { ascending: false });
+            } catch(e) { console.log("Sort skipped"); }
 
-        // A. Insert Room (With Error Check)
-        const { error: roomErr } = await client.from('rooms').insert({
-            room_code: code, host_id: myId, status: 'WAITING', 
-            pot: 0, stage: 'PREFLOP', deck: [], board: [], 
-            current_turn: 0, min_bet: 0
-        });
+            const { data: rooms, error } = await query;
 
-        if (roomErr) {
-            console.error(roomErr);
-            return alert("Database Error (Room): " + roomErr.message);
-        }
-
-        // B. Insert Player (With Error Check)
-        // We delete any old instance of this user first to prevent "duplicate key" errors
-        await client.from('players').delete().eq('user_id', myId);
-
-        const { error: playerErr } = await client.from('players').insert({
-            room_code: code, user_id: myId, username: username,
-            chips: 1000, seat: 0, status: 'active', bet: 0, hand: []
-        });
-
-        if (playerErr) {
-            console.error(playerErr);
-            return alert("Database Error (Player): " + playerErr.message);
-        }
-
-        enterGame(code, true);
-    }
-
-    async function joinRequest(code) {
-        const username = document.getElementById('username').value;
-        if (!username) return alert("Enter a username");
-
-        // Delete old session
-        await client.from('players').delete().eq('user_id', myId);
-
-        const { error } = await client.from('players').insert({
-            room_code: code, user_id: myId, username: username,
-            chips: 1000, seat: 99, status: 'pending', bet: 0, hand: []
-        });
-
-        if (error) return alert("Error joining: " + error.message);
-
-        document.getElementById('lobby-screen').classList.add('hidden');
-        document.getElementById('loading-screen').classList.remove('hidden');
-
-        // Wait for approval
-        const channel = client.channel('approval').on('postgres_changes', 
-            { event: 'UPDATE', schema: 'public', table: 'players', filter: `user_id=eq.${myId}` },
-            payload => {
-                if (payload.new.status === 'active') {
-                    client.removeChannel(channel);
-                    enterGame(code, false);
+            const listDiv = document.getElementById('available-rooms-list');
+            
+            if (error) {
+                console.error("Error fetching rooms:", error);
+                // If error is 400, it means 'created_at' is still missing.
+                if(error.code === 'PGRST200' || error.code === '400') {
+                    listDiv.innerHTML = '<div style="font-size:12px; color:#e74c3c">Run the SQL snippet to fix "Bad Request"</div>';
                 }
+                return;
             }
-        ).subscribe();
-    }
-
-    // 3. GAME LOGIC
-    function enterGame(code, hostStatus) {
-        myRoom = code;
-        isHost = hostStatus;
-        
-        document.getElementById('lobby-screen').classList.add('hidden');
-        document.getElementById('loading-screen').classList.add('hidden');
-        document.getElementById('game-screen').classList.remove('hidden');
-        document.getElementById('room-code-display').innerText = "Room: " + code;
-
-        if (isHost) document.getElementById('host-area').classList.remove('hidden');
-
-        renderGame();
-        
-        // Subscriptions
-        client.channel('game')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms', filter: `room_code=eq.${code}` }, handleRoom)
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'players', filter: `room_code=eq.${code}` }, handlePlayers)
-            .subscribe();
-    }
-
-    async function handleRoom(payload) {
-        renderGame();
-        if (isHost && payload.new.status === 'PLAYING') checkGameLogic(payload.new);
-    }
-    async function handlePlayers() { renderGame(); }
-
-    async function renderGame() {
-        const { data: room } = await client.from('rooms').select().eq('room_code', myRoom).maybeSingle();
-        const { data: players } = await client.from('players').select().eq('room_code', myRoom).order('seat');
-
-        // Safety Check: If room doesn't exist, don't crash immediately, just log it.
-        if (!room) {
-            console.log("Room not found in DB yet...");
-            return; 
-        }
-
-        // Update Table
-        document.getElementById('pot-display').innerText = room.pot;
-        document.getElementById('status-display').innerText = `${room.status} - ${room.stage}`;
-        document.getElementById('board-display').innerHTML = room.board.map(renderCard).join('');
-
-        // Update Players
-        const list = document.getElementById('players-list');
-        list.innerHTML = '';
-        const me = players.find(p => p.user_id === myId);
-        if (me) mySeat = me.seat;
-
-        players.forEach(p => {
-            if (p.status === 'pending') return;
-
-            const isTurn = (room.status === 'PLAYING' && room.current_turn === p.seat);
-            let cards = '';
             
-            if ((p.user_id === myId || room.status === 'SHOWDOWN') && p.hand && p.hand.length) {
-                cards = p.hand.map(renderCard).join('');
-            } else {
-                cards = `<div class="card" style="background:blue;"></div><div class="card" style="background:blue;"></div>`;
+            if (!rooms || rooms.length === 0) {
+                listDiv.innerHTML = '<div style="color:#aaa; padding:10px;">No open rooms.</div>';
+                return;
             }
 
-            list.innerHTML += `
-                <div class="player-row ${isTurn ? 'active-turn' : ''}" style="opacity:${p.status==='folded'?0.5:1}">
-                    <div><strong>${p.username}</strong><br>$${p.chips} (Bet: ${p.bet})</div>
-                    <div>${cards}</div>
-                </div>`;
+            // Filter out any room older than 24 hours just in case
+            const now = new Date();
+            const validRooms = rooms.filter(r => {
+                if (!r.created_at) return true; // Keep if no timestamp yet
+                const created = new Date(r.created_at);
+                return (now - created) < (24 * 60 * 60 * 1000); 
+            });
+
+            listDiv.innerHTML = validRooms.map(r => `
+                <div class="room-item" onclick="joinFromList('${r.room_code}')">
+                    <div style="text-align:left;">
+                        <span><strong>Room ${r.room_code}</strong></span>
+                    </div>
+                    <span style="font-size:12px; color:#2ecc71;">Join ➤</span>
+                </div>
+            `).join('');
+        }
+    }
+
+    function joinFromList(code) {
+        document.getElementById('room-code-input').value = code;
+        handleJoin();
+    }
+
+    async function handleCreate() {
+        const username = document.getElementById('username').value;
+        if (!username) return alert("Please enter a username first!");
+        myUsername = username;
+        myRoomCode = generateRoomCode(4);
+        
+        // We include created_at explicitly (Supabase handles it usually, but this is safe)
+        await supabaseClient.from('rooms').insert({ 
+            room_code: myRoomCode,
+            host_user_id: myUserId,
+            status: 'WAITING',
+            current_turn_seat: 0,
+            current_min_bet: 0,
+            pot: 0,
+            deck: [],
+            created_at: new Date().toISOString()
         });
 
-        // My Controls
-        const actionDiv = document.getElementById('action-bar');
-        if (room.status === 'PLAYING' && room.current_turn === mySeat) {
-            actionDiv.classList.remove('hidden');
-            const toCall = room.min_bet - me.bet;
-            document.getElementById('call-btn').innerText = toCall > 0 ? `Call ${toCall}` : "Check";
+        await joinPlayerToDB(username, 0, 1000);
+        enterLobby();
+    }
+
+    async function handleJoin() {
+        const username = document.getElementById('username').value;
+        const code = document.getElementById('room-code-input').value.toUpperCase();
+        
+        if (!username) return alert("Please enter a username first!");
+        if (!code) return alert("Enter a room code or select a room below.");
+        
+        myUsername = username;
+
+        const { data: room } = await supabaseClient.from('rooms').select('*').eq('room_code', code).maybeSingle();
+        if (!room) {
+            alert("Room not found (it may have been closed).");
+            fetchAvailableRooms(); // Refresh list
+            return;
+        }
+        
+        myRoomCode = code;
+        
+        const { data: existing } = await supabaseClient.from('players')
+            .select('*')
+            .eq('room_code', code)
+            .eq('user_id', myUserId)
+            .maybeSingle();
+        
+        if (existing) {
+            mySeatIndex = existing.seat_index;
+            enterLobby();
         } else {
-            actionDiv.classList.add('hidden');
+            if (room.status === 'PLAYING') return alert("Game in progress!");
+            const { data: players } = await supabaseClient.from('players').select('seat_index').eq('room_code', code);
+            const newSeat = players.length; 
+            await joinPlayerToDB(username, newSeat, 1000); 
+            enterLobby();
         }
+    }
 
-        // Host Controls
-        if (isHost) {
-            const pending = players.filter(p => p.status === 'pending');
-            const reqDiv = document.getElementById('host-requests');
-            reqDiv.innerHTML = pending.map(p => `
-                <div>${p.username} <button class="btn-green" onclick="acceptPlayer('${p.user_id}')">Accept</button></div>
-            `).join('');
+    async function joinPlayerToDB(username, seat, chipAmount) {
+        const { data, error } = await supabaseClient.from('players').upsert({
+            room_code: myRoomCode,
+            user_id: myUserId,
+            username: username,
+            chips: chipAmount,
+            seat_index: seat,
+            status: 'active',
+            current_bet: 0,
+            has_acted: false,
+            hand: [] 
+        }).select().single();
+        
+        if (!error) mySeatIndex = seat;
+        return data; 
+    }
 
-            const activeCount = players.filter(p => p.status === 'active' || p.status === 'folded' || p.status.includes('Winner')).length;
-            const btn = document.getElementById('start-btn');
+    // ======================================================
+    // 3. REALTIME & DATA
+    // ======================================================
+
+    function enterLobby() {
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('lobby-screen').classList.remove('hidden');
+        document.getElementById('display-room-code').innerText = myRoomCode;
+
+        refreshGameData();
+
+        if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
+        
+        realtimeChannel = supabaseClient.channel('room_' + myRoomCode)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms', filter: `room_code=eq.${myRoomCode}` }, (payload) => {
+                if (payload.eventType === 'DELETE') {
+                    alert("The host has closed the room.");
+                    location.reload(); 
+                } else {
+                    refreshGameData();
+                }
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'players', filter: `room_code=eq.${myRoomCode}` }, () => refreshGameData())
+            .subscribe();
             
-            if (room.status === 'WAITING' && activeCount >= 2) {
-                btn.classList.remove('hidden');
-                btn.innerText = "START GAME";
-            } else if (room.status.includes('Winner')) {
-                btn.classList.remove('hidden');
-                btn.innerText = "NEXT HAND";
-            } else {
-                btn.classList.add('hidden');
-            }
+        // Add listener for tab closing to cleanup
+        window.addEventListener('beforeunload', handleTabClose);
+    }
+
+    // --- CLEANUP LOGIC ---
+    async function leaveRoomWrapper() {
+        window.removeEventListener('beforeunload', handleTabClose); // Remove trigger
+        await performCleanup();
+        location.reload(); // Refresh page to go back to start
+    }
+
+    function handleTabClose() {
+        // Attempt to clean up on tab close (not guaranteed by browser)
+        const data = new FormData();
+        data.append('room', myRoomCode);
+        data.append('user', myUserId);
+        navigator.sendBeacon(SUPABASE_URL + '/rest/v1/rpc/cleanup', data); // Beacon specific hook (advanced)
+        // Fallback: We just run the async func, though it might cut off
+        performCleanup();
+    }
+
+    async function performCleanup() {
+        if (!myRoomCode) return;
+        
+        if (isHost) {
+            // HOST LEAVING: DELETE ROOM
+            await supabaseClient.from('rooms').delete().eq('room_code', myRoomCode);
+            // Also delete players to be clean
+            await supabaseClient.from('players').delete().eq('room_code', myRoomCode);
+        } else {
+            // PLAYER LEAVING: REMOVE SELF
+            await supabaseClient.from('players').delete()
+                .eq('room_code', myRoomCode)
+                .eq('user_id', myUserId);
         }
     }
 
-    // 4. HOST ACTIONS
-    async function acceptPlayer(uid) {
-        const { data: players } = await client.from('players').select('seat').eq('room_code', myRoom).neq('status','pending');
-        const taken = players.map(p => p.seat);
-        let seat = 0;
-        while(taken.includes(seat)) seat++;
-        await client.from('players').update({ status: 'active', seat: seat }).eq('user_id', uid);
-    }
-
-    async function startGame() {
-        const { data: players } = await client.from('players').select().eq('room_code', myRoom).or('status.eq.active,status.eq.folded,status.ilike.Winner%');
-        const deck = createDeck();
+    async function refreshGameData() {
+        if (!myRoomCode) return;
+        const { data: room } = await supabaseClient.from('rooms').select('*').eq('room_code', myRoomCode).maybeSingle();
         
-        for(let p of players) {
-            await client.from('players').update({ 
-                hand: [deck.pop(), deck.pop()], status: 'active', bet: 0, has_acted: false 
-            }).eq('user_id', p.user_id);
-        }
-
-        await client.from('rooms').update({
-            status: 'PLAYING', stage: 'PREFLOP', pot: 0, min_bet: 0,
-            deck: deck, board: [], current_turn: 0
-        }).eq('room_code', myRoom);
-    }
-
-    // 5. GAME PROGRESSION
-    async function checkGameLogic(room) {
-        const { data: players } = await client.from('players').select().eq('room_code', myRoom).neq('status','pending');
-        const active = players.filter(p => p.status !== 'folded');
-        
-        // Win by fold
-        if (active.length === 1) return endGame(active[0], room.pot);
-
-        const highBet = Math.max(...active.map(p => p.bet));
-        const allMatched = active.every(p => p.bet === highBet || p.chips === 0);
-        const allActed = active.every(p => p.has_acted || p.chips === 0);
-
-        if (allMatched && allActed) nextStage(room);
-    }
-
-    async function nextStage(room) {
-        let { stage, deck, board, pot } = room;
-        const { data: players } = await client.from('players').select().eq('room_code', myRoom);
-        
-        let roundPot = 0;
-        players.forEach(p => roundPot += p.bet);
-        await client.from('players').update({ bet: 0, has_acted: false }).eq('room_code', myRoom).neq('status','folded');
-
-        if (stage === 'PREFLOP') { stage = 'FLOP'; board.push(deck.pop(), deck.pop(), deck.pop()); }
-        else if (stage === 'FLOP') { stage = 'TURN'; board.push(deck.pop()); }
-        else if (stage === 'TURN') { stage = 'RIVER'; board.push(deck.pop()); }
-        else if (stage === 'RIVER') {
-            await client.from('rooms').update({ status: 'SHOWDOWN', pot: pot + roundPot, board: board }).eq('room_code', myRoom);
+        // If room is gone (deleted by host), kick user out
+        if (!room) {
+            alert("Room was closed.");
+            location.reload();
             return;
         }
 
-        const nextSeat = getNextSeat(-1, players); // Reset to first player
-        await client.from('rooms').update({ 
-            status: 'PLAYING', stage: stage, pot: pot + roundPot, min_bet: 0,
-            board: board, deck: deck, current_turn: nextSeat 
-        }).eq('room_code', myRoom);
+        const { data: players } = await supabaseClient.from('players').select('*').eq('room_code', myRoomCode).order('seat_index');
+        if (room && players) updateUI(room, players);
     }
 
-    async function endGame(winner, pot) {
-        // Collect current bets too
-        const { data: players } = await client.from('players').select('bet').eq('room_code', myRoom);
-        const extra = players.reduce((s,p) => s + p.bet, 0);
-        
-        await client.from('players').update({ chips: winner.chips + pot + extra }).eq('user_id', winner.user_id);
-        await client.from('rooms').update({ status: 'Winner: ' + winner.username, pot: 0 }).eq('room_code', myRoom);
+    // ======================================================
+    // 4. UI LOGIC
+    // ======================================================
+
+    function renderCardHTML(cardString) {
+        if (!cardString) return '';
+        const rank = cardString.slice(0, -1);
+        const suitChar = cardString.slice(-1);
+        let suitSymbol = '';
+        let color = 'black';
+        if (suitChar === 'h') { suitSymbol = '♥'; color = '#d0021b'; }
+        else if (suitChar === 'd') { suitSymbol = '♦'; color = '#d0021b'; }
+        else if (suitChar === 'c') { suitSymbol = '♣'; color = 'black'; }
+        else if (suitChar === 's') { suitSymbol = '♠'; color = 'black'; }
+
+        return `
+            <div class="card-container" style="color: ${color}">
+                <div class="card-top-left"><div>${rank}</div><div style="font-size:10px;">${suitSymbol}</div></div>
+                <div class="card-center-suit">${suitSymbol}</div>
+            </div>`;
     }
 
-    // 6. PLAYER MOVES
-    async function submitAction(act) {
-        const { data: room } = await client.from('rooms').select().eq('room_code', myRoom).single();
-        const { data: me } = await client.from('players').select().eq('user_id', myId).single();
+    function updateUI(room, players) {
+        isHost = (room.host_user_id === myUserId);
         
-        if (room.current_turn !== me.seat) return;
+        const uniquePlayers = [];
+        const seen = new Set();
+        players.forEach(p => { if(!seen.has(p.user_id)) { uniquePlayers.push(p); seen.add(p.user_id); } });
 
-        let up = { has_acted: true };
-        let newMin = room.min_bet;
-
-        if (act === 'fold') up.status = 'folded';
-        else if (act === 'call') {
-            const cost = room.min_bet - me.bet;
-            up.chips = me.chips - cost;
-            up.bet = me.bet + cost;
-        } else if (act === 'raise') {
-            const amt = parseInt(document.getElementById('raise-amt').value);
-            const total = (room.min_bet - me.bet) + amt;
-            up.chips = me.chips - total;
-            up.bet = me.bet + total;
-            newMin = up.bet;
+        const me = uniquePlayers.find(p => p.user_id === myUserId);
+        if (me) {
+            mySeatIndex = me.seat_index;
+            sessionStorage.setItem('poker_saved_chips', me.chips);
+        } else {
+            // If I am not in the player list anymore (maybe kicked?), reload
+             if (document.getElementById('lobby-screen').classList.contains('hidden') === false) {
+                 // only if I think I'm in the lobby
+                 // location.reload(); 
+             }
         }
 
-        await client.from('players').update(up).eq('user_id', myId);
+        const controls = document.getElementById('host-controls');
+        controls.innerHTML = ""; 
+        controls.classList.add('hidden');
         
-        if (act === 'raise') {
-            await client.from('rooms').update({ min_bet: newMin }).eq('room_code', myRoom);
-            await client.from('players').update({ has_acted: false }).eq('room_code', myRoom).neq('user_id', myId).neq('status','folded');
+        if (isHost) {
+            if (room.status === 'WAITING') {
+                controls.classList.remove('hidden');
+                controls.innerHTML = `<button onclick="handleStartGame()">START GAME</button>`;
+            } else if (room.status.includes('Winner') || room.status === 'SHOWDOWN') {
+                controls.classList.remove('hidden');
+                controls.innerHTML = `<button onclick="handleNextHand()">START NEXT HAND</button>`;
+            }
         }
 
-        const { data: all } = await client.from('players').select().eq('room_code', myRoom);
-        await client.from('rooms').update({ current_turn: getNextSeat(me.seat, all) }).eq('room_code', myRoom);
+        document.getElementById('game-status').innerText = room.status;
+        document.getElementById('pot-display').innerText = room.pot;
+        document.getElementById('current-bet-display').innerText = room.current_min_bet;
+
+        // --- DRAW BOARD ---
+        document.getElementById('community-cards').innerHTML = (room.community_cards || [])
+            .map(c => renderCardHTML(c)).join('');
+
+        // --- DRAW PLAYER LIST ---
+        const list = document.getElementById('player-list');
+        let listHTML = '';
+        uniquePlayers.forEach(p => {
+            const isMe = p.user_id === myUserId;
+            const isTurn = (room.status === 'PLAYING' && room.current_turn_seat === p.seat_index);
+            const showCards = isMe || room.status.includes('Winner') || room.status === 'SHOWDOWN';
+            
+            let cardsHTML = '';
+            if (showCards && p.hand && p.hand.length) {
+                p.hand.forEach(c => cardsHTML += renderCardHTML(c));
+            } else {
+                cardsHTML = p.hand && p.hand.length ? 
+                    `<div class="card-container back"></div><div class="card-container back"></div>` : 
+                    '<span style="color:#aaa; font-size:12px;">Waiting...</span>';
+            }
+
+            listHTML += `
+                <div class="player-row ${p.status === 'folded' ? 'folded' : ''}" style="${isTurn ? 'background:rgba(255,255,255,0.1); border-left:6px solid #f1c40f;' : ''}">
+                    <div style="min-width: 100px;">
+                        <span style="font-size:18px; color:${isMe ? '#f1c40f' : 'white'}">${p.username}</span><br>
+                        <span style="font-size:14px; color:#ddd;">$${p.chips}</span> 
+                        <span style="font-size:12px; color:#aaa;">(Bet: $${p.current_bet})</span>
+                    </div>
+                    <div style="display:flex;">${cardsHTML}</div>
+                </div>`;
+            
+            if(isMe) {
+                 const myCards = document.getElementById('my-cards');
+                 const h = (p.hand && p.hand.length) ? p.hand.map(c => renderCardHTML(c)).join('') : '';
+                 if(myCards.innerHTML !== h) myCards.innerHTML = h;
+            }
+        });
+        list.innerHTML = listHTML;
+
+        // --- ACTION BAR ---
+        const actionBar = document.getElementById('action-bar');
+        if (!isProcessingAction && room.status === 'PLAYING' && me && room.current_turn_seat === me.seat_index && me.status !== 'folded') {
+            actionBar.classList.remove('hidden');
+            let toCall = room.current_min_bet - me.current_bet;
+            if (toCall < 0) toCall = 0;
+            
+            const oldInput = document.getElementById('raise-amount');
+            const savedValue = oldInput ? oldInput.value : '';
+
+            actionBar.innerHTML = `
+                <button onclick="sendAction('fold')" style="background:#c0392b">FOLD</button>
+                <button onclick="sendAction('call')" style="background:${toCall === 0 ? '#e67e22' : '#2980b9'}">
+                    ${toCall === 0 ? "CHECK" : `CALL $${toCall}`}
+                </button>
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    <input type="number" id="raise-amount" placeholder="+ Amt" value="${savedValue}" style="width:70px; padding:8px; border-radius:4px; font-weight:bold;">
+                    <button onclick="sendAction('raise')" style="background:#27ae60">RAISE</button>
+                </div>
+            `;
+        } else {
+            actionBar.classList.add('hidden');
+            actionBar.innerHTML = ''; 
+        }
     }
 
-    // UTILS
-    function getNextSeat(curr, players) {
-        const active = players.filter(p => p.status !== 'folded' && p.status !== 'pending').sort((a,b)=>a.seat-b.seat);
-        let idx = active.findIndex(p => p.seat === curr);
-        return active[(idx + 1) % active.length].seat;
-    }
-    function createDeck() {
-        const s = ['♥','♦','♣','♠'], r = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-        return s.flatMap(x => r.map(y => y+x)).sort(() => Math.random() - 0.5);
-    }
-    function renderCard(c) {
-        return `<div class="card ${'♥♦'.includes(c.slice(-1))?'red':''}">${c}</div>`;
-    }
-    async function leaveGame() {
-        if (!myRoom) return;
-        await client.from('players').delete().eq('user_id', myId);
-        if (isHost) await client.from('rooms').delete().eq('room_code', myRoom);
-        location.reload();
-    }
-    window.onbeforeunload = function() { if(myRoom) leaveGame(); };
+    // ======================================================
+    // 5. GAME LOGIC
+    // ======================================================
 
+    async function handleStartGame() { await setupNewHand(); }
+    async function handleNextHand() { await setupNewHand(); }
+
+    async function setupNewHand() {
+        if (!isHost) return;
+        let deck = getStandardDeck();
+        shuffle(deck);
+
+        const { data: rawPlayers } = await supabaseClient.from('players').select('*').eq('room_code', myRoomCode).order('seat_index');
+        
+        const seen = new Set();
+        const players = [];
+        rawPlayers.forEach(p => { if(!seen.has(p.user_id)){ players.push(p); seen.add(p.user_id); } });
+
+        if (players.length < 2) return alert("Need at least 2 players!");
+
+        const firstActor = (players.length === 2) ? 0 : (2 % players.length);
+        let initialPot = 0;
+        let currentMinBet = 0;
+
+        for (let i = 0; i < players.length; i++) {
+            let p = players[i];
+            let bet = (i === 0) ? 10 : (i === 1) ? 20 : 0;
+            if (i === 1) currentMinBet = 20;
+            if (bet > p.chips) bet = p.chips;
+
+            initialPot += bet;
+            
+            await supabaseClient.from('players').update({ 
+                hand: [deck.pop(), deck.pop()], 
+                chips: p.chips - bet, 
+                current_bet: bet, 
+                status: 'active', 
+                has_acted: false 
+            }).eq('user_id', p.user_id);
+        }
+
+        await supabaseClient.from('rooms').update({ 
+            status: 'PLAYING', deck: deck, community_cards: [], 
+            pot: initialPot, current_min_bet: currentMinBet, current_turn_seat: firstActor 
+        }).eq('room_code', myRoomCode);
+    }
+
+    async function sendAction(action) {
+        if (isProcessingAction) return; 
+        isProcessingAction = true;      
+        
+        try {
+            const { data: room } = await supabaseClient.from('rooms').select('*').eq('room_code', myRoomCode).maybeSingle();
+            let { data: me } = await supabaseClient.from('players').select('*').eq('room_code', myRoomCode).eq('user_id', myUserId).maybeSingle();
+            
+            if (!me) {
+                const savedChips = parseInt(sessionStorage.getItem('poker_saved_chips')) || 1000;
+                me = await joinPlayerToDB(myUsername, mySeatIndex || 99, savedChips);
+                if (!me) throw new Error("Could not recover player session.");
+            }
+            if (!room) throw new Error("Room not found");
+
+            let newPot = room.pot;
+            let newMinBet = room.current_min_bet;
+            let myNewBet = me.current_bet;
+            let myNewChips = me.chips;
+            let myNewStatus = me.status;
+            let cost = 0;
+
+            if (action === 'fold') {
+                myNewStatus = 'folded';
+            } 
+            else if (action === 'call') {
+                cost = room.current_min_bet - me.current_bet;
+                if (cost < 0) cost = 0;
+                if (cost > myNewChips) cost = myNewChips;
+                myNewChips -= cost;
+                myNewBet += cost;
+                newPot += cost; 
+            } 
+            else if (action === 'raise') {
+                const inputVal = document.getElementById('raise-amount').value;
+                let raiseAmount = parseInt(inputVal);
+                if (!raiseAmount || raiseAmount <= 0) {
+                    alert("Invalid raise"); isProcessingAction = false; return;
+                }
+                let target = room.current_min_bet + raiseAmount;
+                cost = target - me.current_bet;
+                if (cost > myNewChips) { cost = myNewChips; target = myNewBet + cost; }
+                myNewChips -= cost;
+                myNewBet = target; 
+                newMinBet = target; 
+                newPot += cost; 
+            }
+
+            document.getElementById('action-bar').classList.add('hidden');
+
+            await supabaseClient.from('players').update({ 
+                chips: myNewChips, current_bet: myNewBet, status: myNewStatus, has_acted: true 
+            }).eq('user_id', myUserId);
+
+            // Logic to advance game...
+            const { data: allPlayers } = await supabaseClient.from('players').select('*').eq('room_code', myRoomCode);
+            const uniquePlayers = [];
+            const seen = new Set();
+            allPlayers.forEach(p => { if(!seen.has(p.user_id)){ uniquePlayers.push(p); seen.add(p.user_id); } });
+
+            const activePlayers = uniquePlayers.filter(p => p.status !== 'folded');
+            if (activePlayers.length === 1) {
+                await distributeWinnings(activePlayers[0], newPot);
+                return;
+            }
+            const betsMatched = activePlayers.every(p => p.current_bet === newMinBet || p.chips === 0);
+            const everyoneActed = activePlayers.every(p => p.has_acted);
+
+            if (betsMatched && everyoneActed) {
+                await advanceGameStage(room, newPot, uniquePlayers);
+            } else {
+                const nextSeat = getNextActiveSeat(room.current_turn_seat, uniquePlayers);
+                await supabaseClient.from('rooms').update({ 
+                    pot: newPot, current_min_bet: newMinBet, current_turn_seat: nextSeat 
+                }).eq('room_code', myRoomCode);
+            }
+
+        } catch (e) { console.error(e); } finally { isProcessingAction = false; refreshGameData(); }
+    }
+
+    async function advanceGameStage(room, currentPot, players) {
+        let deck = room.deck;
+        let board = room.community_cards || [];
+        
+        if (board.length === 0) board.push(deck.pop(), deck.pop(), deck.pop());
+        else if (board.length === 3 || board.length === 4) board.push(deck.pop());
+        else if (board.length === 5) {
+            await determineShowdownWinner(players, board, currentPot);
+            return;
+        }
+
+        await supabaseClient.from('players').update({ current_bet: 0, has_acted: false }).eq('room_code', myRoomCode);
+        const firstSeat = getNextActiveSeat(-1, players);
+        await supabaseClient.from('rooms').update({
+            pot: currentPot, current_min_bet: 0, current_turn_seat: firstSeat,
+            community_cards: board, deck: deck
+        }).eq('room_code', myRoomCode);
+    }
+
+    async function determineShowdownWinner(players, board, pot) {
+        const active = players.filter(p => p.status !== 'folded');
+        let bestScore = -1;
+        let winners = [];
+        active.forEach(p => {
+            const score = evaluateHandWithTieBreaker(p.hand, board);
+            if (score > bestScore) { bestScore = score; winners = [p]; } 
+            else if (score === bestScore) { winners.push(p); }
+        });
+        const share = Math.floor(pot / winners.length);
+        for (let w of winners) await supabaseClient.from('players').update({ chips: w.chips + share }).eq('user_id', w.user_id);
+        const winnerNames = winners.map(w => w.username).join(" & ");
+        await supabaseClient.from('rooms').update({ status: 'Winner: ' + winnerNames, pot: 0, community_cards: board }).eq('room_code', myRoomCode);
+    }
+
+    async function distributeWinnings(winner, pot) {
+        await supabaseClient.from('players').update({ chips: winner.chips + pot }).eq('user_id', winner.user_id);
+        await supabaseClient.from('rooms').update({ status: 'Winner: ' + winner.username, pot: 0 }).eq('room_code', myRoomCode);
+    }
+
+    // --- EVALUATOR ---
+    function evaluateHandWithTieBreaker(hand, board) {
+        const allCards = [...hand, ...board];
+        const ranks = { '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, 'J':11, 'Q':12, 'K':13, 'A':14 };
+        let parsed = allCards.map(c => ({ val: ranks[c.slice(0,-1)], suit: c.slice(-1) }));
+        parsed.sort((a,b) => b.val - a.val);
+
+        const getCounts = (cards) => { const c={}; cards.forEach(x=>c[x.val]=(c[x.val]||0)+1); return c; };
+        const suits = {}; parsed.forEach(x=>suits[x.suit]=(suits[x.suit]||0)+1);
+        let flushSuit = null; for(let s in suits) if(suits[s]>=5) flushSuit = s;
+        
+        let flushCards = [];
+        if (flushSuit) {
+            flushCards = parsed.filter(c => c.suit === flushSuit);
+            let sfHigh = checkStraight(flushCards.map(c=>c.val));
+            if (sfHigh > 0) return 80000000000 + sfHigh;
+        }
+
+        const counts = getCounts(parsed);
+        const vals = Object.keys(counts).map(Number).sort((a,b)=>b-a);
+        const quads = vals.filter(v=>counts[v]===4);
+        const trips = vals.filter(v=>counts[v]===3);
+        const pairs = vals.filter(v=>counts[v]===2);
+
+        if (quads.length > 0) return 70000000000 + (quads[0]*100000000) + getKickers(parsed, [quads[0]], 1);
+        if (trips.length > 0) {
+            const t = trips[0];
+            const remainingTrips = trips.filter(x=>x!==t);
+            const bestPair = (remainingTrips.length > 0) ? remainingTrips[0] : (pairs.length > 0 ? pairs[0] : null);
+            if (bestPair !== null) return 60000000000 + (t*100000000) + (bestPair*1000000);
+        }
+        if (flushSuit) {
+            const f = flushCards.slice(0,5);
+            return 50000000000 + (f[0].val*100000000) + (f[1].val*1000000) + (f[2].val*10000) + (f[3].val*100) + f[4].val;
+        }
+        const strHigh = checkStraight(parsed.map(c=>c.val));
+        if (strHigh > 0) return 40000000000 + strHigh;
+        if (trips.length > 0) return 30000000000 + (trips[0]*100000000) + getKickers(parsed, [trips[0]], 2);
+        if (pairs.length >= 2) return 20000000000 + (pairs[0]*100000000) + (pairs[1]*1000000) + getKickers(parsed, [pairs[0], pairs[1]], 1);
+        if (pairs.length === 1) return 10000000000 + (pairs[0]*100000000) + getKickers(parsed, [pairs[0]], 3);
+        return getKickers(parsed, [], 5);
+    }
+    function checkStraight(vals) {
+        const u = [...new Set(vals)];
+        if(u.length<5) return 0;
+        for(let i=0; i<=u.length-5; i++) if(u[i]-u[i+4]===4) return u[i];
+        if(u.includes(14)&&u.includes(2)&&u.includes(3)&&u.includes(4)&&u.includes(5)) return 5;
+        return 0;
+    }
+    function getKickers(allCards, excludeVals, count) {
+        const kickers = allCards.filter(c => !excludeVals.includes(c.val));
+        let score = 0;
+        if (count >= 1 && kickers[0]) score += kickers[0].val * 1000000;
+        if (count >= 2 && kickers[1]) score += kickers[1].val * 10000;
+        if (count >= 3 && kickers[2]) score += kickers[2].val * 100;
+        if (count >= 4 && kickers[3]) score += kickers[3].val * 1;
+        if (count >= 5 && kickers[4]) score += kickers[4].val * 0.01;
+        return score;
+    }
+
+    // --- UTILS ---
+    function getNextActiveSeat(curr, players) {
+        const sorted = players.sort((a,b) => a.seat_index - b.seat_index);
+        let next = curr;
+        for(let i=0; i<10; i++) {
+            next = (next + 1) % sorted.length;
+            const p = sorted.find(x => x.seat_index === next);
+            if (p && p.status !== 'folded') return p.seat_index;
+        }
+        return curr;
+    }
+    function generateRoomCode(l) { return Math.random().toString(36).substr(2, l).toUpperCase(); }
+    function getStandardDeck() { 
+        const s=['h','d','c','s'], r=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+        let d=[]; for(let x of s) for(let y of r) d.push(y+x);
+        return d; 
+    }
+    function shuffle(a) { for(let i=a.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
 </script>
 </body>
 </html>
