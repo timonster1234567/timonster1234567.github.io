@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Texas Hold'em - Debugged Version</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #2c3e50; color: white; text-align: center; margin: 0; padding: 20px; }
+        .hidden { display: none !important; }
+        
+        /* Screens */
+        .screen { max-width: 800px; margin: 0 auto; background: #34495e; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        
+        /* Game Elements */
+        .table-area { background: #27ae60; padding: 20px; border-radius: 50px; border: 5px solid #f1c40f; margin: 20px 0; min-height: 200px; }
+        .card { background: white; color: black; display: inline-block; width: 40px; height: 56px; margin: 2px; border-radius: 4px; line-height: 56px; font-weight: bold; border: 1px solid #999; vertical-align: middle; }
+        .card.red { color: #e74c3c; }
+        .player-row { background: rgba(0,0,0,0.2); margin: 5px 0; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .active-turn { border: 2px solid #f1c40f; background: rgba(241, 196, 15, 0.2); }
+        
+        /* Buttons & Inputs */
+        button { padding: 10px 15px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; margin: 2px; }
+        .btn-green { background: #2ecc71; color: white; }
+        .btn-blue { background: #3498db; color: white; }
+        .btn-red { background: #e74c3c; color: white; }
+        input { padding: 10px; border-radius: 4px; border: none; width: 60%; }
+        
+        /* Lobby */
+        #room-list { text-align: left; margin-top: 20px; border-top: 1px solid #7f8c8d; padding-top: 10px; }
+        .room-item { background: #2c3e50; padding: 10px; margin: 5px 0; border: 1px solid #7f8c8d; display: flex; justify-content: space-between; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <div id="lobby-screen" class="screen">
+        <h1>Texas Hold'em</h1>
+        <input type="text" id="username" placeholder="Enter Username"><br><br>
+        <button class="btn-green" onclick="createRoom()">Create New Room</button>
+        
+        <div id="room-list">
+            <h3>Available Rooms</h3>
+            <div id="rooms-container">Loading...</div>
+        </div>
+    </div>
+
+    <div id="loading-screen" class="screen hidden">
+        <h2>Waiting for Host...</h2>
+        <div style="font-size: 40px;">⏳</div>
+        <p>Tell the host to let you in!</p>
+        <button class="btn-red" onclick="location.reload()">Cancel</button>
+    </div>
+
+    <div id="game-screen" class="screen hidden">
+        <div style="display:flex; justify-content:space-between;">
+            <span id="room-code-display" style="font-weight:bold; color:#f1c40f;"></span>
+            <button class="btn-red" onclick="leaveGame()">Leave</button>
+        </div>
+
+        <div id="host-area" class="hidden" style="background:#e67e22; padding:10px; margin:10px 0; border-radius:5px;">
+            <div id="host-requests"></div>
+            <button id="start-btn" class="btn-green hidden" onclick="startGame()">DEAL HAND</button>
+        </div>
+
+        <div class="table-area">
+            <div>Pot: $<span id="pot-display">0</span></div>
+            <div id="board-display" style="min-height:60px; margin-top:10px;"></div>
+            <div id="status-display" style="margin-top:10px;">Waiting...</div>
+        </div>
+
+        <div id="players-list"></div>
+
+        <div id="action-bar" class="hidden" style="background:#2c3e50; padding:10px; border-top:2px solid #7f8c8d;">
+            <button class="btn-red" onclick="submitAction('fold')">FOLD</button>
+            <button class="btn-blue" id="call-btn" onclick="submitAction('call')">CALL</button>
+            <input type="number" id="raise-amt" placeholder="Amt" style="width:60px;">
+            <button class="btn-green" onclick="submitAction('raise')">RAISE</button>
+        </div>
+    </div>
+
+<script>
+    // 1. SETUP
+    const SUPABASE_URL = 'https://ijpjvswkzksbtaaywntw.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_x0TmiruQPu8VQm5x_nPfYQ_wEHAcz5m';
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let myId = sessionStorage.getItem('pk_id') || 'u_' + Math.random().toString(36).substr(2, 6);
+    sessionStorage.setItem('pk_id', myId);
+    let myRoom = null;
+    let isHost = false;
+    let mySeat = null;
+
+    // 2. LOBBY
+    window.onload = function() {
+        setInterval(fetchRooms, 3000);
+        fetchRooms();
+    };
+
+    async function fetchRooms() {
+        if (myRoom) return;
+        const { data: rooms } = await client.from('rooms').select('*').eq('status', 'WAITING').order('created_at', {ascending: false});
+        const container = document.getElementById('rooms-container');
+        container.innerHTML = '';
+        if (rooms && rooms.length) {
+            rooms.forEach(r => {
+                container.innerHTML += `<div class="room-item">
+                    <span>Room <strong>${r.room_code}</strong></span>
+                    <button class="btn-blue" onclick="joinRequest('${r.room_code}')">Join</button>
+                </div>`;
+            });
+        } else {
+            container.innerHTML = 'No rooms found.';
+        }
+    }
+
+    async function createRoom() {
+        const username = document.getElementById('username').value;
+        if (!username) return alert("Enter a username");
+        
+        // Generate a 4-letter code
+        const code = Math.random().toString(36).substr(2, 4).toUpperCase();
+        
+        console.log("Creating room:", code);
+
+        // A. Insert Room (With Error Check)
+        const { error: roomErr } = await client.from('rooms').insert({
+            room_code: code, host_id: myId, status: 'WAITING', 
+            pot: 0, stage: 'PREFLOP', deck: [], board: [], 
+            current_turn: 0, min_bet: 0
+        });
+
+        if (roomErr) {
+            console.error(roomErr);
+            return alert("Database Error (Room): " + roomErr.message);
+        }
+
+        // B. Insert Player (With Error Check)
+        // We delete any old instance of this user first to prevent "duplicate key" errors
+        await client.from('players').delete().eq('user_id', myId);
+
+        const { error: playerErr } = await client.from('players').insert({
+            room_code: code, user_id: myId, username: username,
+            chips: 1000, seat: 0, status: 'active', bet: 0, hand: []
+        });
+
+        if (playerErr) {
+            console.error(playerErr);
+            return alert("Database Error (Player): " + playerErr.message);
+        }
+
+        enterGame(code, true);
+    }
+
+    async function joinRequest(code) {
+        const username = document.getElementById('username').value;
+        if (!username) return alert("Enter a username");
+
+        // Delete old session
+        await client.from('players').delete().eq('user_id', myId);
+
+        const { error } = await client.from('players').insert({
+            room_code: code, user_id: myId, username: username,
+            chips: 1000, seat: 99, status: 'pending', bet: 0, hand: []
+        });
+
+        if (error) return alert("Error joining: " + error.message);
+
+        document.getElementById('lobby-screen').classList.add('hidden');
+        document.getElementById('loading-screen').classList.remove('hidden');
+
+        // Wait for approval
+        const channel = client.channel('approval').on('postgres_changes', 
+            { event: 'UPDATE', schema: 'public', table: 'players', filter: `user_id=eq.${myId}` },
+            payload => {
+                if (payload.new.status === 'active') {
+                    client.removeChannel(channel);
+                    enterGame(code, false);
+                }
+            }
+        ).subscribe();
+    }
+
+    // 3. GAME LOGIC
+    function enterGame(code, hostStatus) {
+        myRoom = code;
+        isHost = hostStatus;
+        
+        document.getElementById('lobby-screen').classList.add('hidden');
+        document.getElementById('loading-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        document.getElementById('room-code-display').innerText = "Room: " + code;
+
+        if (isHost) document.getElementById('host-area').classList.remove('hidden');
+
+        renderGame();
+        
+        // Subscriptions
+        client.channel('game')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms', filter: `room_code=eq.${code}` }, handleRoom)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'players', filter: `room_code=eq.${code}` }, handlePlayers)
+            .subscribe();
+    }
+
+    async function handleRoom(payload) {
+        renderGame();
+        if (isHost && payload.new.status === 'PLAYING') checkGameLogic(payload.new);
+    }
+    async function handlePlayers() { renderGame(); }
+
+    async function renderGame() {
+        const { data: room } = await client.from('rooms').select().eq('room_code', myRoom).maybeSingle();
+        const { data: players } = await client.from('players').select().eq('room_code', myRoom).order('seat');
+
+        // Safety Check: If room doesn't exist, don't crash immediately, just log it.
+        if (!room) {
+            console.log("Room not found in DB yet...");
+            return; 
+        }
+
+        // Update Table
+        document.getElementById('pot-display').innerText = room.pot;
+        document.getElementById('status-display').innerText = `${room.status} - ${room.stage}`;
+        document.getElementById('board-display').innerHTML = room.board.map(renderCard).join('');
+
+        // Update Players
+        const list = document.getElementById('players-list');
+        list.innerHTML = '';
+        const me = players.find(p => p.user_id === myId);
+        if (me) mySeat = me.seat;
+
+        players.forEach(p => {
+            if (p.status === 'pending') return;
+
+            const isTurn = (room.status === 'PLAYING' && room.current_turn === p.seat);
+            let cards = '';
+            
+            if ((p.user_id === myId || room.status === 'SHOWDOWN') && p.hand && p.hand.length) {
+                cards = p.hand.map(renderCard).join('');
+            } else {
+                cards = `<div class="card" style="background:blue;"></div><div class="card" style="background:blue;"></div>`;
+            }
+
+            list.innerHTML += `
+                <div class="player-row ${isTurn ? 'active-turn' : ''}" style="opacity:${p.status==='folded'?0.5:1}">
+                    <div><strong>${p.username}</strong><br>$${p.chips} (Bet: ${p.bet})</div>
+                    <div>${cards}</div>
+                </div>`;
+        });
+
+        // My Controls
+        const actionDiv = document.getElementById('action-bar');
+        if (room.status === 'PLAYING' && room.current_turn === mySeat) {
+            actionDiv.classList.remove('hidden');
+            const toCall = room.min_bet - me.bet;
+            document.getElementById('call-btn').innerText = toCall > 0 ? `Call ${toCall}` : "Check";
+        } else {
+            actionDiv.classList.add('hidden');
+        }
+
+        // Host Controls
+        if (isHost) {
+            const pending = players.filter(p => p.status === 'pending');
+            const reqDiv = document.getElementById('host-requests');
+            reqDiv.innerHTML = pending.map(p => `
+                <div>${p.username} <button class="btn-green" onclick="acceptPlayer('${p.user_id}')">Accept</button></div>
+            `).join('');
+
+            const activeCount = players.filter(p => p.status === 'active' || p.status === 'folded' || p.status.includes('Winner')).length;
+            const btn = document.getElementById('start-btn');
+            
+            if (room.status === 'WAITING' && activeCount >= 2) {
+                btn.classList.remove('hidden');
+                btn.innerText = "START GAME";
+            } else if (room.status.includes('Winner')) {
+                btn.classList.remove('hidden');
+                btn.innerText = "NEXT HAND";
+            } else {
+                btn.classList.add('hidden');
+            }
+        }
+    }
+
+    // 4. HOST ACTIONS
+    async function acceptPlayer(uid) {
+        const { data: players } = await client.from('players').select('seat').eq('room_code', myRoom).neq('status','pending');
+        const taken = players.map(p => p.seat);
+        let seat = 0;
+        while(taken.includes(seat)) seat++;
+        await client.from('players').update({ status: 'active', seat: seat }).eq('user_id', uid);
+    }
+
+    async function startGame() {
+        const { data: players } = await client.from('players').select().eq('room_code', myRoom).or('status.eq.active,status.eq.folded,status.ilike.Winner%');
+        const deck = createDeck();
+        
+        for(let p of players) {
+            await client.from('players').update({ 
+                hand: [deck.pop(), deck.pop()], status: 'active', bet: 0, has_acted: false 
+            }).eq('user_id', p.user_id);
+        }
+
+        await client.from('rooms').update({
+            status: 'PLAYING', stage: 'PREFLOP', pot: 0, min_bet: 0,
+            deck: deck, board: [], current_turn: 0
+        }).eq('room_code', myRoom);
+    }
+
+    // 5. GAME PROGRESSION
+    async function checkGameLogic(room) {
+        const { data: players } = await client.from('players').select().eq('room_code', myRoom).neq('status','pending');
+        const active = players.filter(p => p.status !== 'folded');
+        
+        // Win by fold
+        if (active.length === 1) return endGame(active[0], room.pot);
+
+        const highBet = Math.max(...active.map(p => p.bet));
+        const allMatched = active.every(p => p.bet === highBet || p.chips === 0);
+        const allActed = active.every(p => p.has_acted || p.chips === 0);
+
+        if (allMatched && allActed) nextStage(room);
+    }
+
+    async function nextStage(room) {
+        let { stage, deck, board, pot } = room;
+        const { data: players } = await client.from('players').select().eq('room_code', myRoom);
+        
+        let roundPot = 0;
+        players.forEach(p => roundPot += p.bet);
+        await client.from('players').update({ bet: 0, has_acted: false }).eq('room_code', myRoom).neq('status','folded');
+
+        if (stage === 'PREFLOP') { stage = 'FLOP'; board.push(deck.pop(), deck.pop(), deck.pop()); }
+        else if (stage === 'FLOP') { stage = 'TURN'; board.push(deck.pop()); }
+        else if (stage === 'TURN') { stage = 'RIVER'; board.push(deck.pop()); }
+        else if (stage === 'RIVER') {
+            await client.from('rooms').update({ status: 'SHOWDOWN', pot: pot + roundPot, board: board }).eq('room_code', myRoom);
+            return;
+        }
+
+        const nextSeat = getNextSeat(-1, players); // Reset to first player
+        await client.from('rooms').update({ 
+            status: 'PLAYING', stage: stage, pot: pot + roundPot, min_bet: 0,
+            board: board, deck: deck, current_turn: nextSeat 
+        }).eq('room_code', myRoom);
+    }
+
+    async function endGame(winner, pot) {
+        // Collect current bets too
+        const { data: players } = await client.from('players').select('bet').eq('room_code', myRoom);
+        const extra = players.reduce((s,p) => s + p.bet, 0);
+        
+        await client.from('players').update({ chips: winner.chips + pot + extra }).eq('user_id', winner.user_id);
+        await client.from('rooms').update({ status: 'Winner: ' + winner.username, pot: 0 }).eq('room_code', myRoom);
+    }
+
+    // 6. PLAYER MOVES
+    async function submitAction(act) {
+        const { data: room } = await client.from('rooms').select().eq('room_code', myRoom).single();
+        const { data: me } = await client.from('players').select().eq('user_id', myId).single();
+        
+        if (room.current_turn !== me.seat) return;
+
+        let up = { has_acted: true };
+        let newMin = room.min_bet;
+
+        if (act === 'fold') up.status = 'folded';
+        else if (act === 'call') {
+            const cost = room.min_bet - me.bet;
+            up.chips = me.chips - cost;
+            up.bet = me.bet + cost;
+        } else if (act === 'raise') {
+            const amt = parseInt(document.getElementById('raise-amt').value);
+            const total = (room.min_bet - me.bet) + amt;
+            up.chips = me.chips - total;
+            up.bet = me.bet + total;
+            newMin = up.bet;
+        }
+
+        await client.from('players').update(up).eq('user_id', myId);
+        
+        if (act === 'raise') {
+            await client.from('rooms').update({ min_bet: newMin }).eq('room_code', myRoom);
+            await client.from('players').update({ has_acted: false }).eq('room_code', myRoom).neq('user_id', myId).neq('status','folded');
+        }
+
+        const { data: all } = await client.from('players').select().eq('room_code', myRoom);
+        await client.from('rooms').update({ current_turn: getNextSeat(me.seat, all) }).eq('room_code', myRoom);
+    }
+
+    // UTILS
+    function getNextSeat(curr, players) {
+        const active = players.filter(p => p.status !== 'folded' && p.status !== 'pending').sort((a,b)=>a.seat-b.seat);
+        let idx = active.findIndex(p => p.seat === curr);
+        return active[(idx + 1) % active.length].seat;
+    }
+    function createDeck() {
+        const s = ['♥','♦','♣','♠'], r = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+        return s.flatMap(x => r.map(y => y+x)).sort(() => Math.random() - 0.5);
+    }
+    function renderCard(c) {
+        return `<div class="card ${'♥♦'.includes(c.slice(-1))?'red':''}">${c}</div>`;
+    }
+    async function leaveGame() {
+        if (!myRoom) return;
+        await client.from('players').delete().eq('user_id', myId);
+        if (isHost) await client.from('rooms').delete().eq('room_code', myRoom);
+        location.reload();
+    }
+    window.onbeforeunload = function() { if(myRoom) leaveGame(); };
+
+</script>
+</body>
+</html>
