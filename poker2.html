@@ -3,22 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poker Game</title>
+    <title>Poker Game Deluxe</title>
+    
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    
     <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #2c3e50; color: white; text-align: center; margin: 0; padding: 20px; }
-    .hidden { display: none !important; }
-     
-    /* Containers */
-    #login-screen, #lobby-screen { max-width: 600px; margin: 0 auto; }
-     
-    /* Inputs & Buttons */
-    input { padding: 12px; border-radius: 8px; border: none; margin: 5px; width: 200px; text-align: center; font-size: 16px; }
-    button { padding: 12px 24px; cursor: pointer; border: none; border-radius: 8px; font-weight: bold; margin: 5px; color: white; background: #2980b9; transition: 0.2s; font-size: 14px; }
-    button:hover { transform: translateY(-2px); box-shadow: 0 4px 0 #1a5276; }
-    button:active { transform: translateY(0); box-shadow: none; }
+    /* =========================================
+       GLOBAL STYLES
+       ========================================= */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #2c3e50;
+        color: white;
+        text-align: center;
+        margin: 0;
+        padding: 20px;
+        overflow-x: hidden; /* Prevent side scroll from animations */
+    }
 
-    /* Room List Styles */
+    .hidden {
+        display: none !important;
+    }
+
+    /* =========================================
+       CONTAINERS
+       ========================================= */
+    #login-screen, #lobby-screen {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* =========================================
+       INPUTS & BUTTONS
+       ========================================= */
+    input {
+        padding: 12px;
+        border-radius: 8px;
+        border: none;
+        margin: 5px;
+        width: 200px;
+        text-align: center;
+        font-size: 16px;
+    }
+
+    button {
+        padding: 12px 24px;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        margin: 5px;
+        color: white;
+        background: #2980b9;
+        transition: 0.2s;
+        font-size: 14px;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 0 #1a5276;
+    }
+
+    button:active {
+        transform: translateY(0);
+        box-shadow: none;
+    }
+
+    /* Small Toggle Button (Hide/Show) */
+    .toggle-btn {
+        padding: 4px 10px;
+        font-size: 11px;
+        background: #7f8c8d;
+        margin-left: 10px;
+        border-radius: 4px;
+    }
+
+    .toggle-btn:hover {
+        background: #95a5a6;
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* =========================================
+       ROOM LIST STYLES
+       ========================================= */
     #room-list-container {
         margin-top: 30px;
         background: rgba(0,0,0,0.2);
@@ -26,6 +96,7 @@
         border-radius: 10px;
         border: 1px solid rgba(255,255,255,0.1);
     }
+
     .room-item {
         background: #34495e;
         margin: 5px 0;
@@ -38,24 +109,44 @@
         cursor: pointer;
         transition: 0.2s;
     }
+
     .room-item:hover {
         background: #2c3e50;
         border-color: #f1c40f;
     }
 
-    /* Game Board */
+    /* =========================================
+       GAME BOARD
+       ========================================= */
     .board { 
         background: radial-gradient(#27ae60, #1e8449); 
-        padding: 20px; border-radius: 20px; 
+        padding: 20px; 
+        border-radius: 20px; 
         border: 8px solid #145a32; 
         box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
-        margin-top: 20px; min-height: 250px; position: relative; 
+        margin-top: 20px; 
+        min-height: 250px; 
+        position: relative; 
     }
-     
-    /* Card Styles */
+
+    .stats-box { 
+        background: rgba(0,0,0,0.5); 
+        padding: 8px 15px; 
+        border-radius: 20px; 
+        display: inline-block; 
+        margin: 5px; 
+        min-width: 100px; 
+        font-weight: bold; 
+        border: 1px solid rgba(255,255,255,0.2); 
+    }
+
+    /* =========================================
+       CARD STYLES
+       ========================================= */
     .card-container {
         display: inline-block;
-        width: 50px; height: 70px;
+        width: 50px; 
+        height: 70px;
         background: white;
         border-radius: 6px;
         box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
@@ -64,42 +155,183 @@
         text-align: center;
         overflow: hidden;
     }
+
     .card-container.back {
-        background: repeating-linear-gradient(45deg, #c0392b, #c0392b 10px, #e74c3c 10px, #e74c3c 20px);
+        background: repeating-linear-gradient(
+            45deg,
+            #c0392b,
+            #c0392b 10px,
+            #e74c3c 10px,
+            #e74c3c 20px
+        );
         border: 2px solid white;
     }
+
     .card-top-left {
-        position: absolute; top: 2px; left: 4px;
-        font-size: 14px; line-height: 1; text-align: center; font-weight: bold;
+        position: absolute; 
+        top: 2px; 
+        left: 4px;
+        font-size: 14px; 
+        line-height: 1; 
+        text-align: center; 
+        font-weight: bold;
     }
+
     .card-center-suit {
-        position: absolute; top: 55%; left: 50%;
+        position: absolute; 
+        top: 55%; 
+        left: 50%;
         transform: translate(-50%, -50%);
         font-size: 32px;
     }
 
-    /* Player List */
-    #player-list { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; text-align: left; }
+    /* =========================================
+       PLAYER LIST
+       ========================================= */
+    #player-list { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 10px; 
+        margin-top: 20px; 
+        text-align: left; 
+    }
+
     .player-row { 
-        background: rgba(0,0,0,0.4); padding: 10px; border-radius: 12px; 
-        display: flex; justify-content: space-between; align-items: center; 
+        background: rgba(0,0,0,0.4); 
+        padding: 10px; 
+        border-radius: 12px; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
         border-left: 6px solid transparent; 
         transition: 0.3s;
     }
-    .player-row.folded { opacity: 0.5; filter: grayscale(0.8); }
 
-    /* Action Bar */
+    .player-row.folded { 
+        opacity: 0.5; 
+        filter: grayscale(0.8); 
+    }
+
+    .dealer-btn {
+        background: white; 
+        color: black; 
+        border-radius: 50%; 
+        width: 20px; 
+        height: 20px;
+        display: inline-flex; 
+        justify-content: center; 
+        align-items: center; 
+        font-size: 12px; 
+        font-weight: bold;
+        margin-right: 5px;
+    }
+
+    /* =========================================
+       ACTION BAR
+       ========================================= */
     #action-bar { 
-        position: fixed; bottom: 0; left: 0; width: 100%; 
-        background: rgba(0,0,0,0.95); padding: 20px; 
-        display: flex; justify-content: center; align-items: center; gap: 10px; 
+        position: fixed; 
+        bottom: 0; 
+        left: 0; 
+        width: 100%; 
+        background: rgba(0,0,0,0.95); 
+        padding: 20px; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        gap: 10px; 
         box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
         z-index: 100;
     }
-    .stats-box { background: rgba(0,0,0,0.5); padding: 8px 15px; border-radius: 20px; display: inline-block; margin: 5px; min-width: 100px; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); }
-</style>
+
+    /* =========================================
+       ANIMATIONS (Toasts & Overlay)
+       ========================================= */
+    
+    /* Toast Container (Top Right) */
+    #toast-container {
+        position: fixed; 
+        top: 20px; 
+        right: 20px; 
+        width: 300px;
+        display: flex; 
+        flex-direction: column; 
+        gap: 10px; 
+        z-index: 9999;
+        pointer-events: none; /* Let clicks pass through */
+    }
+
+    .toast {
+        background: rgba(44, 62, 80, 0.95);
+        border-left: 5px solid #3498db;
+        color: white; 
+        padding: 15px; 
+        border-radius: 4px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        opacity: 0; 
+        transform: translateX(50px);
+        animation: slideIn 0.3s forwards, fadeOut 0.5s 3.5s forwards;
+        font-size: 14px; 
+        text-align: left;
+    }
+
+    .toast.raise { border-color: #27ae60; }
+    .toast.fold { border-color: #c0392b; }
+    
+    @keyframes slideIn { 
+        to { opacity: 1; transform: translateX(0); } 
+    }
+    @keyframes fadeOut { 
+        to { opacity: 0; } 
+    }
+
+    /* Winner Overlay (Full Screen) */
+    #winner-overlay {
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%;
+        background: rgba(0,0,0,0.85); 
+        z-index: 2000;
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center; 
+        align-items: center;
+        opacity: 0; 
+        pointer-events: none; 
+        transition: opacity 0.5s;
+    }
+
+    #winner-overlay.active { 
+        opacity: 1; 
+        pointer-events: auto; 
+    }
+
+    .winner-text {
+        font-size: 40px; 
+        font-weight: bold; 
+        color: #f1c40f;
+        text-shadow: 0 0 20px #f39c12; 
+        margin-bottom: 20px;
+        transform: scale(0.5); 
+        transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    #winner-overlay.active .winner-text { 
+        transform: scale(1); 
+    }
+    </style>
 </head>
 <body>
+
+    <div id="toast-container"></div>
+    
+    <div id="winner-overlay">
+        <div class="winner-text">WINNER!</div>
+        <div id="winner-name" style="font-size: 24px; color: white;"></div>
+        <button onclick="closeWinnerOverlay()" style="margin-top:30px; background: transparent; border: 1px solid white;">Dismiss</button>
+    </div>
 
     <div id="login-screen">
         <h1>♣️ POKER ♠️</h1>
@@ -125,6 +357,7 @@
 
     <div id="lobby-screen" class="hidden">
         <h2>Room: <span id="display-room-code" style="color:#f1c40f">---</span></h2>
+        
         <button onclick="leaveRoomWrapper()" style="font-size:12px; background:#c0392b; padding:5px 10px;">Leave Room</button>
         
         <div id="host-controls" class="hidden" style="margin-bottom: 10px;"></div>
@@ -144,11 +377,15 @@
         </div>
 
         <div style="margin-top:20px;">
-            <div>My Hand:</div>
-            <div id="my-cards" style="display:flex; justify-content:center; gap:5px; margin-top:5px; height:40px;"></div>
+            <div>
+                My Hand: 
+                <button class="toggle-btn" onclick="toggleMyCards()" id="toggle-cards-btn">Hide</button>
+            </div>
+            <div id="my-cards" style="display:flex; justify-content:center; gap:5px; margin-top:5px; height:75px;"></div>
         </div>
 
         <div id="player-list"></div>
+
         <div id="action-bar" class="hidden"></div>
     </div>
 
@@ -158,80 +395,198 @@
     // ======================================================
     const SUPABASE_URL = 'https://ijpjvswkzksbtaaywntw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_x0TmiruQPu8VQm5x_nPfYQ_wEHAcz5m';
-    
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // Identity Management
     let myUserId = sessionStorage.getItem('poker_user_id'); 
     if (!myUserId) {
         myUserId = 'user_' + Math.random().toString(36).substr(2, 9);
         sessionStorage.setItem('poker_user_id', myUserId);
     }
 
+    // Game State Variables
     let myRoomCode = null;
     let isHost = false;
     let realtimeChannel = null;
     let mySeatIndex = null;
     let myUsername = "Player"; 
-    let isProcessingAction = false; 
+    let isProcessingAction = false;
+    let heartbeatInterval = null;
+    
+    // UI State
+    let areMyCardsHidden = false; // For the Hide/Show button
 
-    // POLL FOR ROOMS ON LOAD
+    // Animation State Variables
+    let lastRoomStatus = '';
+    let lastPlayerBets = {}; 
+    let isInitialLoad = true; 
+
+    // Start Polling for Rooms
     setInterval(fetchAvailableRooms, 4000);
     fetchAvailableRooms();
 
     // ======================================================
-    // 2. LOBBY & JOINING
+    // 2. ANIMATION & ALERT UTILITIES
+    // ======================================================
+    
+    function showToast(msg, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const div = document.createElement('div');
+        div.className = `toast ${type}`;
+        div.innerText = msg;
+        container.appendChild(div);
+        
+        // Remove after animation completes
+        setTimeout(() => {
+            div.remove();
+        }, 4000);
+    }
+
+    function checkAnimations(room, players) {
+        if (isInitialLoad) {
+            // Just populate initial state without alerting
+            lastRoomStatus = room.status;
+            players.forEach(p => lastPlayerBets[p.user_id] = p.current_bet);
+            isInitialLoad = false;
+            return;
+        }
+
+        // 1. Check for WINNER
+        if (room.status.includes('Winner') && !lastRoomStatus.includes('Winner')) {
+            triggerConfetti();
+            const winnerName = room.status.replace('Winner: ', '');
+            document.getElementById('winner-name').innerText = winnerName;
+            document.getElementById('winner-overlay').classList.add('active');
+        }
+
+        // 2. Check for BET actions (Toasts)
+        players.forEach(p => {
+            const oldBet = lastPlayerBets[p.user_id] || 0;
+            const newBet = p.current_bet;
+            
+            // Only alert if bet INCREASED
+            if (newBet > oldBet) {
+                const diff = newBet - oldBet;
+                if (diff > 0) {
+                    const actionType = (newBet === room.current_min_bet) ? 'call' : 'raise';
+                    
+                    // Don't show toast for my own actions
+                    if (p.user_id !== myUserId) {
+                        if (actionType === 'raise') {
+                            showToast(`${p.username} Raises +$${diff}`, 'raise');
+                        } else {
+                            showToast(`${p.username} Calls/Bets $${diff}`);
+                        }
+                    }
+                }
+            }
+            lastPlayerBets[p.user_id] = newBet;
+        });
+
+        lastRoomStatus = room.status;
+    }
+
+    function triggerConfetti() {
+        var duration = 3 * 1000;
+        var animationEnd = Date.now() + duration;
+        var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 3000 };
+
+        var interval = setInterval(function() {
+            var timeLeft = animationEnd - Date.now();
+            if (timeLeft <= 0) { return clearInterval(interval); }
+            var particleCount = 50 * (timeLeft / duration);
+            
+            confetti(Object.assign({}, defaults, { 
+                particleCount, 
+                origin: { x: 0.1, y: Math.random() - 0.2 } 
+            }));
+            confetti(Object.assign({}, defaults, { 
+                particleCount, 
+                origin: { x: 0.7, y: Math.random() - 0.2 } 
+            }));
+        }, 250);
+    }
+
+    function closeWinnerOverlay() {
+        document.getElementById('winner-overlay').classList.remove('active');
+    }
+
+    // ======================================================
+    // 3. HEARTBEAT SYSTEM
+    // ======================================================
+    function startHeartbeat() {
+        if (heartbeatInterval) clearInterval(heartbeatInterval);
+        sendPulse();
+        heartbeatInterval = setInterval(sendPulse, 5000);
+    }
+
+    async function sendPulse() {
+        if (!myRoomCode || !myUserId) return;
+        await supabaseClient.from('players')
+            .update({ last_active: new Date().toISOString() })
+            .eq('user_id', myUserId)
+            .eq('room_code', myRoomCode);
+    }
+
+    // ======================================================
+    // 4. LOBBY & JOINING LOGIC
     // ======================================================
 
     async function fetchAvailableRooms() {
         if (!document.getElementById('login-screen').classList.contains('hidden')) {
-            
-            // Try to sort by created_at. If column missing, fallback to unsorted.
-            let query = supabaseClient
-                .from('rooms')
-                .select('*')
-                .eq('status', 'WAITING')
-                .limit(10);
-            
-            // Note: If you ran the SQL snippet, this will work. 
-            // If not, it might ignore order or error, but we catch errors.
-            try {
-                query = query.order('created_at', { ascending: false });
-            } catch(e) { console.log("Sort skipped"); }
+            let query = supabaseClient.from('rooms').select('*').eq('status', 'WAITING').limit(15);
+            try { query = query.order('created_at', { ascending: false }); } catch(e) {}
 
             const { data: rooms, error } = await query;
-
             const listDiv = document.getElementById('available-rooms-list');
             
-            if (error) {
-                console.error("Error fetching rooms:", error);
-                // If error is 400, it means 'created_at' is still missing.
-                if(error.code === 'PGRST200' || error.code === '400') {
-                    listDiv.innerHTML = '<div style="font-size:12px; color:#e74c3c">Run the SQL snippet to fix "Bad Request"</div>';
-                }
-                return;
-            }
-            
-            if (!rooms || rooms.length === 0) {
-                listDiv.innerHTML = '<div style="color:#aaa; padding:10px;">No open rooms.</div>';
+            if (error || !rooms) {
+                listDiv.innerHTML = '<div style="color:#aaa;">No open rooms.</div>';
                 return;
             }
 
-            // Filter out any room older than 24 hours just in case
+            // --- ZOMBIE ROOM CLEANER (Logic from Step 3) ---
+            const validRooms = [];
             const now = new Date();
-            const validRooms = rooms.filter(r => {
-                if (!r.created_at) return true; // Keep if no timestamp yet
-                const created = new Date(r.created_at);
-                return (now - created) < (24 * 60 * 60 * 1000); 
-            });
 
-            listDiv.innerHTML = validRooms.map(r => `
-                <div class="room-item" onclick="joinFromList('${r.room_code}')">
-                    <div style="text-align:left;">
-                        <span><strong>Room ${r.room_code}</strong></span>
+            for (let r of rooms) {
+                const { data: hostPlayer } = await supabaseClient
+                    .from('players')
+                    .select('last_active')
+                    .eq('room_code', r.room_code)
+                    .eq('user_id', r.host_user_id)
+                    .maybeSingle();
+
+                let isZombie = false;
+                if (hostPlayer && hostPlayer.last_active) {
+                    const lastActive = new Date(hostPlayer.last_active);
+                    const diffSeconds = (now - lastActive) / 1000;
+                    if (diffSeconds > 30) isZombie = true; 
+                } else {
+                    const roomCreated = new Date(r.created_at);
+                    if ((now - roomCreated) / 1000 > 120) isZombie = true;
+                }
+
+                if (isZombie) {
+                    supabaseClient.from('rooms').delete().eq('room_code', r.room_code).then();
+                    supabaseClient.from('players').delete().eq('room_code', r.room_code).then();
+                } else {
+                    validRooms.push(r);
+                }
+            }
+
+            if (validRooms.length === 0) {
+                listDiv.innerHTML = '<div style="color:#aaa;">No active rooms found.</div>';
+            } else {
+                listDiv.innerHTML = validRooms.map(r => `
+                    <div class="room-item" onclick="joinFromList('${r.room_code}')">
+                        <div style="text-align:left;">
+                            <span><strong>Room ${r.room_code}</strong></span>
+                        </div>
+                        <span style="font-size:12px; color:#2ecc71;">Join ➤</span>
                     </div>
-                    <span style="font-size:12px; color:#2ecc71;">Join ➤</span>
-                </div>
-            `).join('');
+                `).join('');
+            }
         }
     }
 
@@ -246,12 +601,12 @@
         myUsername = username;
         myRoomCode = generateRoomCode(4);
         
-        // We include created_at explicitly (Supabase handles it usually, but this is safe)
         await supabaseClient.from('rooms').insert({ 
             room_code: myRoomCode,
             host_user_id: myUserId,
             status: 'WAITING',
             current_turn_seat: 0,
+            dealer_seat: -1, 
             current_min_bet: 0,
             pot: 0,
             deck: [],
@@ -267,14 +622,14 @@
         const code = document.getElementById('room-code-input').value.toUpperCase();
         
         if (!username) return alert("Please enter a username first!");
-        if (!code) return alert("Enter a room code or select a room below.");
+        if (!code) return alert("Enter a room code.");
         
         myUsername = username;
 
         const { data: room } = await supabaseClient.from('rooms').select('*').eq('room_code', code).maybeSingle();
         if (!room) {
-            alert("Room not found (it may have been closed).");
-            fetchAvailableRooms(); // Refresh list
+            alert("Room not found.");
+            fetchAvailableRooms(); 
             return;
         }
         
@@ -291,7 +646,11 @@
             enterLobby();
         } else {
             if (room.status === 'PLAYING') return alert("Game in progress!");
+            
+            // Check Player Cap (Max 8)
             const { data: players } = await supabaseClient.from('players').select('seat_index').eq('room_code', code);
+            if (players.length >= 8) return alert("Room is full (Max 8).");
+
             const newSeat = players.length; 
             await joinPlayerToDB(username, newSeat, 1000); 
             enterLobby();
@@ -308,7 +667,8 @@
             status: 'active',
             current_bet: 0,
             has_acted: false,
-            hand: [] 
+            hand: [],
+            last_active: new Date().toISOString()
         }).select().single();
         
         if (!error) mySeatIndex = seat;
@@ -316,20 +676,32 @@
     }
 
     // ======================================================
-    // 3. REALTIME & DATA
+    // 5. UI STATE MANAGEMENT
     // ======================================================
+    
+    function toggleMyCards() {
+        areMyCardsHidden = !areMyCardsHidden;
+        const btn = document.getElementById('toggle-cards-btn');
+        if (btn) btn.innerText = areMyCardsHidden ? "Show" : "Hide";
+        refreshGameData(); // Re-render to update card visibility
+    }
 
     function enterLobby() {
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('lobby-screen').classList.remove('hidden');
         document.getElementById('display-room-code').innerText = myRoomCode;
 
+        startHeartbeat();
+
         refreshGameData();
 
         if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
         
+        // Listen for changes
         realtimeChannel = supabaseClient.channel('room_' + myRoomCode)
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms', filter: `room_code=eq.${myRoomCode}` }, (payload) => {
+            .on('postgres_changes', { 
+                event: '*', schema: 'public', table: 'rooms', filter: `room_code=eq.${myRoomCode}` 
+            }, (payload) => {
                 if (payload.eventType === 'DELETE') {
                     alert("The host has closed the room.");
                     location.reload(); 
@@ -337,40 +709,35 @@
                     refreshGameData();
                 }
             })
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'players', filter: `room_code=eq.${myRoomCode}` }, () => refreshGameData())
+            .on('postgres_changes', { 
+                event: '*', schema: 'public', table: 'players', filter: `room_code=eq.${myRoomCode}` 
+            }, () => refreshGameData())
             .subscribe();
             
-        // Add listener for tab closing to cleanup
         window.addEventListener('beforeunload', handleTabClose);
     }
 
-    // --- CLEANUP LOGIC ---
     async function leaveRoomWrapper() {
-        window.removeEventListener('beforeunload', handleTabClose); // Remove trigger
+        window.removeEventListener('beforeunload', handleTabClose); 
         await performCleanup();
-        location.reload(); // Refresh page to go back to start
+        location.reload(); 
     }
 
     function handleTabClose() {
-        // Attempt to clean up on tab close (not guaranteed by browser)
         const data = new FormData();
         data.append('room', myRoomCode);
         data.append('user', myUserId);
-        navigator.sendBeacon(SUPABASE_URL + '/rest/v1/rpc/cleanup', data); // Beacon specific hook (advanced)
-        // Fallback: We just run the async func, though it might cut off
+        navigator.sendBeacon(SUPABASE_URL + '/rest/v1/rpc/cleanup', data); 
         performCleanup();
     }
 
     async function performCleanup() {
+        if (heartbeatInterval) clearInterval(heartbeatInterval);
         if (!myRoomCode) return;
-        
         if (isHost) {
-            // HOST LEAVING: DELETE ROOM
             await supabaseClient.from('rooms').delete().eq('room_code', myRoomCode);
-            // Also delete players to be clean
             await supabaseClient.from('players').delete().eq('room_code', myRoomCode);
         } else {
-            // PLAYER LEAVING: REMOVE SELF
             await supabaseClient.from('players').delete()
                 .eq('room_code', myRoomCode)
                 .eq('user_id', myUserId);
@@ -379,9 +746,8 @@
 
     async function refreshGameData() {
         if (!myRoomCode) return;
-        const { data: room } = await supabaseClient.from('rooms').select('*').eq('room_code', myRoomCode).maybeSingle();
         
-        // If room is gone (deleted by host), kick user out
+        const { data: room } = await supabaseClient.from('rooms').select('*').eq('room_code', myRoomCode).maybeSingle();
         if (!room) {
             alert("Room was closed.");
             location.reload();
@@ -389,12 +755,12 @@
         }
 
         const { data: players } = await supabaseClient.from('players').select('*').eq('room_code', myRoomCode).order('seat_index');
-        if (room && players) updateUI(room, players);
+        
+        if (room && players) {
+            checkAnimations(room, players); // Trigger animations if state changed
+            updateUI(room, players);
+        }
     }
-
-    // ======================================================
-    // 4. UI LOGIC
-    // ======================================================
 
     function renderCardHTML(cardString) {
         if (!cardString) return '';
@@ -402,6 +768,7 @@
         const suitChar = cardString.slice(-1);
         let suitSymbol = '';
         let color = 'black';
+        
         if (suitChar === 'h') { suitSymbol = '♥'; color = '#d0021b'; }
         else if (suitChar === 'd') { suitSymbol = '♦'; color = '#d0021b'; }
         else if (suitChar === 'c') { suitSymbol = '♣'; color = 'black'; }
@@ -409,7 +776,10 @@
 
         return `
             <div class="card-container" style="color: ${color}">
-                <div class="card-top-left"><div>${rank}</div><div style="font-size:10px;">${suitSymbol}</div></div>
+                <div class="card-top-left">
+                    <div>${rank}</div>
+                    <div style="font-size:10px;">${suitSymbol}</div>
+                </div>
                 <div class="card-center-suit">${suitSymbol}</div>
             </div>`;
     }
@@ -419,24 +789,23 @@
         
         const uniquePlayers = [];
         const seen = new Set();
-        players.forEach(p => { if(!seen.has(p.user_id)) { uniquePlayers.push(p); seen.add(p.user_id); } });
+        players.forEach(p => { 
+            if(!seen.has(p.user_id)) { 
+                uniquePlayers.push(p); 
+                seen.add(p.user_id); 
+            } 
+        });
 
         const me = uniquePlayers.find(p => p.user_id === myUserId);
         if (me) {
             mySeatIndex = me.seat_index;
             sessionStorage.setItem('poker_saved_chips', me.chips);
-        } else {
-            // If I am not in the player list anymore (maybe kicked?), reload
-             if (document.getElementById('lobby-screen').classList.contains('hidden') === false) {
-                 // only if I think I'm in the lobby
-                 // location.reload(); 
-             }
         }
 
+        // Host Controls
         const controls = document.getElementById('host-controls');
         controls.innerHTML = ""; 
         controls.classList.add('hidden');
-        
         if (isHost) {
             if (room.status === 'WAITING') {
                 controls.classList.remove('hidden');
@@ -447,51 +816,70 @@
             }
         }
 
+        // Stats
         document.getElementById('game-status').innerText = room.status;
         document.getElementById('pot-display').innerText = room.pot;
         document.getElementById('current-bet-display').innerText = room.current_min_bet;
 
-        // --- DRAW BOARD ---
+        // Community Cards
         document.getElementById('community-cards').innerHTML = (room.community_cards || [])
             .map(c => renderCardHTML(c)).join('');
 
-        // --- DRAW PLAYER LIST ---
+        // Players
         const list = document.getElementById('player-list');
         let listHTML = '';
+        
         uniquePlayers.forEach(p => {
             const isMe = p.user_id === myUserId;
             const isTurn = (room.status === 'PLAYING' && room.current_turn_seat === p.seat_index);
             const showCards = isMe || room.status.includes('Winner') || room.status === 'SHOWDOWN';
+            const isDealer = (room.dealer_seat === p.seat_index);
             
             let cardsHTML = '';
-            if (showCards && p.hand && p.hand.length) {
+            
+            // Logic for Hiding/Showing Cards
+            if (isMe && areMyCardsHidden && p.hand && p.hand.length) {
+                // I have hidden my cards explicitly
+                cardsHTML = `<div class="card-container back"></div><div class="card-container back"></div>`;
+            } else if (showCards && p.hand && p.hand.length) {
+                // Show face up
                 p.hand.forEach(c => cardsHTML += renderCardHTML(c));
             } else {
+                // Show face down or waiting
                 cardsHTML = p.hand && p.hand.length ? 
                     `<div class="card-container back"></div><div class="card-container back"></div>` : 
                     '<span style="color:#aaa; font-size:12px;">Waiting...</span>';
             }
 
+            const dealerIcon = isDealer ? `<span class="dealer-btn">D</span>` : '';
+
             listHTML += `
                 <div class="player-row ${p.status === 'folded' ? 'folded' : ''}" style="${isTurn ? 'background:rgba(255,255,255,0.1); border-left:6px solid #f1c40f;' : ''}">
                     <div style="min-width: 100px;">
-                        <span style="font-size:18px; color:${isMe ? '#f1c40f' : 'white'}">${p.username}</span><br>
+                        <span style="font-size:18px; color:${isMe ? '#f1c40f' : 'white'}">${dealerIcon}${p.username}</span><br>
                         <span style="font-size:14px; color:#ddd;">$${p.chips}</span> 
                         <span style="font-size:12px; color:#aaa;">(Bet: $${p.current_bet})</span>
                     </div>
                     <div style="display:flex;">${cardsHTML}</div>
                 </div>`;
             
+            // Populate "My Cards" separate section
             if(isMe) {
                  const myCards = document.getElementById('my-cards');
-                 const h = (p.hand && p.hand.length) ? p.hand.map(c => renderCardHTML(c)).join('') : '';
+                 let h = '';
+                 if (areMyCardsHidden && p.hand && p.hand.length) {
+                    h = `<div class="card-container back"></div><div class="card-container back"></div>`;
+                 } else {
+                    h = (p.hand && p.hand.length) ? p.hand.map(c => renderCardHTML(c)).join('') : '';
+                 }
                  if(myCards.innerHTML !== h) myCards.innerHTML = h;
             }
         });
         list.innerHTML = listHTML;
 
-        // --- ACTION BAR ---
+        // Action Bar Logic
         const actionBar = document.getElementById('action-bar');
+        
         if (!isProcessingAction && room.status === 'PLAYING' && me && room.current_turn_seat === me.seat_index && me.status !== 'folded') {
             actionBar.classList.remove('hidden');
             let toCall = room.current_min_bet - me.current_bet;
@@ -517,17 +905,22 @@
     }
 
     // ======================================================
-    // 5. GAME LOGIC
+    // 6. GAME LOGIC & ACTIONS
     // ======================================================
 
     async function handleStartGame() { await setupNewHand(); }
-    async function handleNextHand() { await setupNewHand(); }
+    
+    async function handleNextHand() { 
+        closeWinnerOverlay();
+        await setupNewHand(); 
+    }
 
     async function setupNewHand() {
         if (!isHost) return;
         let deck = getStandardDeck();
         shuffle(deck);
 
+        const { data: room } = await supabaseClient.from('rooms').select('*').eq('room_code', myRoomCode).single();
         const { data: rawPlayers } = await supabaseClient.from('players').select('*').eq('room_code', myRoomCode).order('seat_index');
         
         const seen = new Set();
@@ -536,16 +929,46 @@
 
         if (players.length < 2) return alert("Need at least 2 players!");
 
-        const firstActor = (players.length === 2) ? 0 : (2 % players.length);
+        // Determine Dealer (Rotation Logic)
+        let currentDealerSeat = room.dealer_seat;
+        let nextDealerIndexInArray = -1;
+
+        players.sort((a,b) => a.seat_index - b.seat_index);
+
+        let foundIndex = players.findIndex(p => p.seat_index > currentDealerSeat);
+        if (foundIndex === -1) nextDealerIndexInArray = 0;
+        else nextDealerIndexInArray = foundIndex;
+        
+        let nextDealerPlayer = players[nextDealerIndexInArray];
+        const count = players.length;
+
+        // Assign Blinds
+        let sbIndex = (nextDealerIndexInArray + 1) % count;
+        let bbIndex = (nextDealerIndexInArray + 2) % count;
+        let firstActionIndex = (nextDealerIndexInArray + 3) % count;
+
+        if (count === 2) {
+            sbIndex = nextDealerIndexInArray; 
+            bbIndex = (nextDealerIndexInArray + 1) % count; 
+            firstActionIndex = nextDealerIndexInArray; 
+        }
+
+        const sbPlayer = players[sbIndex];
+        const bbPlayer = players[bbIndex];
+        const firstActionPlayer = players[firstActionIndex];
+
         let initialPot = 0;
-        let currentMinBet = 0;
+        let currentMinBet = 20;
 
-        for (let i = 0; i < players.length; i++) {
-            let p = players[i];
-            let bet = (i === 0) ? 10 : (i === 1) ? 20 : 0;
-            if (i === 1) currentMinBet = 20;
+        // Deal Cards and Post Blinds
+        for (let p of players) {
+            let bet = 0;
+            if (p.user_id === sbPlayer.user_id) bet = 10;
+            if (p.user_id === bbPlayer.user_id) bet = 20;
+            
+            // Limit bet to chips available
             if (bet > p.chips) bet = p.chips;
-
+            
             initialPot += bet;
             
             await supabaseClient.from('players').update({ 
@@ -558,8 +981,13 @@
         }
 
         await supabaseClient.from('rooms').update({ 
-            status: 'PLAYING', deck: deck, community_cards: [], 
-            pot: initialPot, current_min_bet: currentMinBet, current_turn_seat: firstActor 
+            status: 'PLAYING', 
+            deck: deck, 
+            community_cards: [], 
+            pot: initialPot, 
+            current_min_bet: currentMinBet, 
+            current_turn_seat: firstActionPlayer.seat_index,
+            dealer_seat: nextDealerPlayer.seat_index 
         }).eq('room_code', myRoomCode);
     }
 
@@ -571,6 +999,7 @@
             const { data: room } = await supabaseClient.from('rooms').select('*').eq('room_code', myRoomCode).maybeSingle();
             let { data: me } = await supabaseClient.from('players').select('*').eq('room_code', myRoomCode).eq('user_id', myUserId).maybeSingle();
             
+            // Session Recovery
             if (!me) {
                 const savedChips = parseInt(sessionStorage.getItem('poker_saved_chips')) || 1000;
                 me = await joinPlayerToDB(myUsername, mySeatIndex || 99, savedChips);
@@ -592,6 +1021,7 @@
                 cost = room.current_min_bet - me.current_bet;
                 if (cost < 0) cost = 0;
                 if (cost > myNewChips) cost = myNewChips;
+                
                 myNewChips -= cost;
                 myNewBet += cost;
                 newPot += cost; 
@@ -602,32 +1032,46 @@
                 if (!raiseAmount || raiseAmount <= 0) {
                     alert("Invalid raise"); isProcessingAction = false; return;
                 }
+                
                 let target = room.current_min_bet + raiseAmount;
                 cost = target - me.current_bet;
-                if (cost > myNewChips) { cost = myNewChips; target = myNewBet + cost; }
+                
+                if (cost > myNewChips) { 
+                    cost = myNewChips; 
+                    target = myNewBet + cost; 
+                }
+                
                 myNewChips -= cost;
                 myNewBet = target; 
                 newMinBet = target; 
                 newPot += cost; 
             }
 
+            // Optimistic UI update
             document.getElementById('action-bar').classList.add('hidden');
 
+            // DB Update
             await supabaseClient.from('players').update({ 
-                chips: myNewChips, current_bet: myNewBet, status: myNewStatus, has_acted: true 
+                chips: myNewChips, 
+                current_bet: myNewBet, 
+                status: myNewStatus, 
+                has_acted: true 
             }).eq('user_id', myUserId);
 
-            // Logic to advance game...
+            // Determine Next State
             const { data: allPlayers } = await supabaseClient.from('players').select('*').eq('room_code', myRoomCode);
             const uniquePlayers = [];
             const seen = new Set();
             allPlayers.forEach(p => { if(!seen.has(p.user_id)){ uniquePlayers.push(p); seen.add(p.user_id); } });
 
             const activePlayers = uniquePlayers.filter(p => p.status !== 'folded');
+            
+            // Check Fold Winner
             if (activePlayers.length === 1) {
                 await distributeWinnings(activePlayers[0], newPot);
                 return;
             }
+
             const betsMatched = activePlayers.every(p => p.current_bet === newMinBet || p.chips === 0);
             const everyoneActed = activePlayers.every(p => p.has_acted);
 
@@ -636,45 +1080,79 @@
             } else {
                 const nextSeat = getNextActiveSeat(room.current_turn_seat, uniquePlayers);
                 await supabaseClient.from('rooms').update({ 
-                    pot: newPot, current_min_bet: newMinBet, current_turn_seat: nextSeat 
+                    pot: newPot, 
+                    current_min_bet: newMinBet, 
+                    current_turn_seat: nextSeat 
                 }).eq('room_code', myRoomCode);
             }
 
-        } catch (e) { console.error(e); } finally { isProcessingAction = false; refreshGameData(); }
+        } catch (e) { 
+            console.error(e); 
+        } finally { 
+            isProcessingAction = false; 
+            refreshGameData(); 
+        }
     }
 
     async function advanceGameStage(room, currentPot, players) {
         let deck = room.deck;
         let board = room.community_cards || [];
         
-        if (board.length === 0) board.push(deck.pop(), deck.pop(), deck.pop());
-        else if (board.length === 3 || board.length === 4) board.push(deck.pop());
-        else if (board.length === 5) {
+        // Flop, Turn, River
+        if (board.length === 0) {
+            board.push(deck.pop(), deck.pop(), deck.pop());
+        } else if (board.length === 3 || board.length === 4) {
+            board.push(deck.pop());
+        } else if (board.length === 5) {
             await determineShowdownWinner(players, board, currentPot);
             return;
         }
 
+        // Reset for next street
         await supabaseClient.from('players').update({ current_bet: 0, has_acted: false }).eq('room_code', myRoomCode);
-        const firstSeat = getNextActiveSeat(-1, players);
+        
+        const nextSeat = getNextActiveSeat(room.dealer_seat, players); 
+
         await supabaseClient.from('rooms').update({
-            pot: currentPot, current_min_bet: 0, current_turn_seat: firstSeat,
-            community_cards: board, deck: deck
+            pot: currentPot, 
+            current_min_bet: 0, 
+            current_turn_seat: nextSeat,
+            community_cards: board, 
+            deck: deck
         }).eq('room_code', myRoomCode);
     }
+
+    // ======================================================
+    // 7. WINNER CALCULATION & HAND EVALUATION
+    // ======================================================
 
     async function determineShowdownWinner(players, board, pot) {
         const active = players.filter(p => p.status !== 'folded');
         let bestScore = -1;
         let winners = [];
+        
         active.forEach(p => {
             const score = evaluateHandWithTieBreaker(p.hand, board);
-            if (score > bestScore) { bestScore = score; winners = [p]; } 
-            else if (score === bestScore) { winners.push(p); }
+            if (score > bestScore) { 
+                bestScore = score; 
+                winners = [p]; 
+            } else if (score === bestScore) { 
+                winners.push(p); 
+            }
         });
+
         const share = Math.floor(pot / winners.length);
-        for (let w of winners) await supabaseClient.from('players').update({ chips: w.chips + share }).eq('user_id', w.user_id);
+        
+        for (let w of winners) {
+            await supabaseClient.from('players').update({ chips: w.chips + share }).eq('user_id', w.user_id);
+        }
+
         const winnerNames = winners.map(w => w.username).join(" & ");
-        await supabaseClient.from('rooms').update({ status: 'Winner: ' + winnerNames, pot: 0, community_cards: board }).eq('room_code', myRoomCode);
+        await supabaseClient.from('rooms').update({ 
+            status: 'Winner: ' + winnerNames, 
+            pot: 0, 
+            community_cards: board 
+        }).eq('room_code', myRoomCode);
     }
 
     async function distributeWinnings(winner, pot) {
@@ -682,58 +1160,119 @@
         await supabaseClient.from('rooms').update({ status: 'Winner: ' + winner.username, pot: 0 }).eq('room_code', myRoomCode);
     }
 
-    // --- EVALUATOR ---
+    /* HAND EVALUATION LOGIC 
+      Returns a massive integer: Score + TieBreaker Kicker values
+    */
     function evaluateHandWithTieBreaker(hand, board) {
         const allCards = [...hand, ...board];
         const ranks = { '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, 'J':11, 'Q':12, 'K':13, 'A':14 };
-        let parsed = allCards.map(c => ({ val: ranks[c.slice(0,-1)], suit: c.slice(-1) }));
+        
+        let parsed = allCards.map(c => ({ 
+            val: ranks[c.slice(0,-1)], 
+            suit: c.slice(-1) 
+        }));
+        
+        // Sort High to Low
         parsed.sort((a,b) => b.val - a.val);
 
-        const getCounts = (cards) => { const c={}; cards.forEach(x=>c[x.val]=(c[x.val]||0)+1); return c; };
-        const suits = {}; parsed.forEach(x=>suits[x.suit]=(suits[x.suit]||0)+1);
-        let flushSuit = null; for(let s in suits) if(suits[s]>=5) flushSuit = s;
+        const getCounts = (cards) => { 
+            const c={}; 
+            cards.forEach(x => c[x.val] = (c[x.val]||0)+1); 
+            return c; 
+        };
+        
+        const suits = {}; 
+        parsed.forEach(x => suits[x.suit] = (suits[x.suit]||0)+1);
+        
+        let flushSuit = null; 
+        for(let s in suits) {
+            if(suits[s] >= 5) flushSuit = s;
+        }
         
         let flushCards = [];
         if (flushSuit) {
             flushCards = parsed.filter(c => c.suit === flushSuit);
-            let sfHigh = checkStraight(flushCards.map(c=>c.val));
+            let sfHigh = checkStraight(flushCards.map(c => c.val));
+            // Straight Flush (Score 80 Billion)
             if (sfHigh > 0) return 80000000000 + sfHigh;
         }
 
         const counts = getCounts(parsed);
         const vals = Object.keys(counts).map(Number).sort((a,b)=>b-a);
-        const quads = vals.filter(v=>counts[v]===4);
-        const trips = vals.filter(v=>counts[v]===3);
-        const pairs = vals.filter(v=>counts[v]===2);
+        
+        const quads = vals.filter(v => counts[v] === 4);
+        const trips = vals.filter(v => counts[v] === 3);
+        const pairs = vals.filter(v => counts[v] === 2);
 
-        if (quads.length > 0) return 70000000000 + (quads[0]*100000000) + getKickers(parsed, [quads[0]], 1);
+        // Four of a Kind (70B)
+        if (quads.length > 0) {
+            return 70000000000 + (quads[0]*100000000) + getKickers(parsed, [quads[0]], 1);
+        }
+
+        // Full House (60B)
         if (trips.length > 0) {
             const t = trips[0];
-            const remainingTrips = trips.filter(x=>x!==t);
+            const remainingTrips = trips.filter(x => x !== t);
             const bestPair = (remainingTrips.length > 0) ? remainingTrips[0] : (pairs.length > 0 ? pairs[0] : null);
-            if (bestPair !== null) return 60000000000 + (t*100000000) + (bestPair*1000000);
+            
+            if (bestPair !== null) {
+                return 60000000000 + (t*100000000) + (bestPair*1000000);
+            }
         }
+
+        // Flush (50B)
         if (flushSuit) {
             const f = flushCards.slice(0,5);
-            return 50000000000 + (f[0].val*100000000) + (f[1].val*1000000) + (f[2].val*10000) + (f[3].val*100) + f[4].val;
+            return 50000000000 + 
+                   (f[0].val*100000000) + 
+                   (f[1].val*1000000) + 
+                   (f[2].val*10000) + 
+                   (f[3].val*100) + 
+                   f[4].val;
         }
-        const strHigh = checkStraight(parsed.map(c=>c.val));
+
+        // Straight (40B)
+        const strHigh = checkStraight(parsed.map(c => c.val));
         if (strHigh > 0) return 40000000000 + strHigh;
-        if (trips.length > 0) return 30000000000 + (trips[0]*100000000) + getKickers(parsed, [trips[0]], 2);
-        if (pairs.length >= 2) return 20000000000 + (pairs[0]*100000000) + (pairs[1]*1000000) + getKickers(parsed, [pairs[0], pairs[1]], 1);
-        if (pairs.length === 1) return 10000000000 + (pairs[0]*100000000) + getKickers(parsed, [pairs[0]], 3);
+
+        // Three of a Kind (30B)
+        if (trips.length > 0) {
+            return 30000000000 + (trips[0]*100000000) + getKickers(parsed, [trips[0]], 2);
+        }
+
+        // Two Pair (20B)
+        if (pairs.length >= 2) {
+            return 20000000000 + (pairs[0]*100000000) + (pairs[1]*1000000) + getKickers(parsed, [pairs[0], pairs[1]], 1);
+        }
+
+        // Pair (10B)
+        if (pairs.length === 1) {
+            return 10000000000 + (pairs[0]*100000000) + getKickers(parsed, [pairs[0]], 3);
+        }
+
+        // High Card (0B)
         return getKickers(parsed, [], 5);
     }
+
     function checkStraight(vals) {
-        const u = [...new Set(vals)];
-        if(u.length<5) return 0;
-        for(let i=0; i<=u.length-5; i++) if(u[i]-u[i+4]===4) return u[i];
-        if(u.includes(14)&&u.includes(2)&&u.includes(3)&&u.includes(4)&&u.includes(5)) return 5;
+        const u = [...new Set(vals)]; 
+        if(u.length < 5) return 0;
+        
+        for(let i=0; i<=u.length-5; i++) {
+            if(u[i] - u[i+4] === 4) return u[i];
+        }
+        
+        // Wheel A-5
+        if(u.includes(14) && u.includes(2) && u.includes(3) && u.includes(4) && u.includes(5)) {
+            return 5;
+        }
         return 0;
     }
+
     function getKickers(allCards, excludeVals, count) {
         const kickers = allCards.filter(c => !excludeVals.includes(c.val));
         let score = 0;
+        // Weighted kickers to avoid tie-breaker collisions
         if (count >= 1 && kickers[0]) score += kickers[0].val * 1000000;
         if (count >= 2 && kickers[1]) score += kickers[1].val * 10000;
         if (count >= 3 && kickers[2]) score += kickers[2].val * 100;
@@ -742,7 +1281,10 @@
         return score;
     }
 
-    // --- UTILS ---
+    // ======================================================
+    // 8. UTILITIES
+    // ======================================================
+
     function getNextActiveSeat(curr, players) {
         const sorted = players.sort((a,b) => a.seat_index - b.seat_index);
         let next = curr;
@@ -753,13 +1295,29 @@
         }
         return curr;
     }
-    function generateRoomCode(l) { return Math.random().toString(36).substr(2, l).toUpperCase(); }
+
+    function generateRoomCode(l) { 
+        return Math.random().toString(36).substr(2, l).toUpperCase(); 
+    }
+
     function getStandardDeck() { 
-        const s=['h','d','c','s'], r=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-        let d=[]; for(let x of s) for(let y of r) d.push(y+x);
+        const s = ['h','d','c','s'];
+        const r = ['2','3','4','5','6','7','8','9','10','J','Q','K','A']; 
+        let d = []; 
+        for(let x of s) {
+            for(let y of r) {
+                d.push(y+x);
+            }
+        }
         return d; 
     }
-    function shuffle(a) { for(let i=a.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
+
+    function shuffle(a) { 
+        for(let i=a.length-1; i>0; i--) { 
+            const j = Math.floor(Math.random()*(i+1)); 
+            [a[i],a[j]] = [a[j],a[i]]; 
+        } 
+    }
 </script>
 </body>
 </html>
