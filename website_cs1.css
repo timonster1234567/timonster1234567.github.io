@@ -101,9 +101,70 @@
 
 .whole_journal {
 	display: block;
-
+	margin-top:200px;
+	margin-left:-750px;
+	/*gap:100px;*/
+	div {
+		margin-bottom: 50px;
+	}
+	font-size:30px;
 }
 
 #projects {
+	/*display:block;*/
+	position: relative;
+	margin-top:200px;
+	margin-left:170px;
+	/*width:2000px;*/
+}
+
+.blocks {
 	display:block;
+	width:300px;
+	height:180px;
+	background-color: rgb(237, 237, 243);
+	border-radius: 20px;
+	justify-content:center;
+	text-align:center;
+	color:black;
+	text-decoration: none;
+	transition: 0.3s;
+}
+
+.blocks:hover {
+	background-color: rgb(207, 207, 213);
+	transition: 0.3s;
+	cursor: pointer;
+	transform: scale(1.05);
+}
+
+#cookie {
+	margin-left:-700px;
+	margin-top:0px;
+}
+
+#imposter {
+	margin-left:350px;
+	margin-top:0px;
+}
+
+#type {
+	margin-left:100px;
+	margin-top:-450px;
+}
+
+#card {
+	margin-left:-300px;
+	margin-top:0px;
+	position:absolute;
+}
+
+#confetti {
+	margin-left:-400px;
+	margin-top:80px;
+}
+
+#train {
+	margin-left:100px;
+	margin-top:-120px;
 }

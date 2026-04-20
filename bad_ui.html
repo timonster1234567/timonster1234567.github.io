@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+		#button {
+			background-color: gray;
+			width:200px;
+			height:80px;
+			border-radius:20px;
+			text-align:center;
+			transition:300ms;
+			margin-left:600px;
+			margin-top:300px;
+			position:absolute;
+		}
+		#button:hover {
+			scale:1.1;
+			transition:300ms;
+		}
+	</style>
+</head>
+<body>
+	<div id="button">YOU CANT CLICK ME</div>
+
+	<script>
+		let button_inside = document.getElementById("button")
+
+		let button_left = 600
+		let button_top = 300
+
+		let x_mover = 0
+		let y_mover = 0
+
+		checker = 0
+
+		button_inside.addEventListener("mouseover", function() {
+			// console.log("hello")
+			// x_mover = 200
+			// y_mover = 200
+
+			// button_left += x_mover
+			// button_top += y_mover
+
+
+			// button_inside.style.marginLeft = button_left + "px"
+			// button_inside.style.marginTop = button_top + "px"
+
+			if(checker/2 == Math.round(checker/2)) {
+				button_inside.style.marginLeft = Math.random()*(window.innerWidth-50) + "px"
+				button_inside.style.marginTop = Math.random()*(window.innerHeight-100) + "px"
+				button_inside.style.transform = "scale(" + Math.random()*2 + ") rotate(" + Math.random()*360 + "deg)"
+				// button_inside.style.transform = "rotate(" + Math.random()*360 + "deg)"
+
+
+				button_left = event.clientX
+				button_top = event.clientY
+
+			}
+			// checker++
+
+		})
+
+		button_inside.addEventListener("mouseout", function() {
+			// x_mover = -200
+			// // y_mover = -100
+
+			// button_left += x_mover
+			// button_top += y_mover
+
+
+			// button_inside.style.marginLeft = button_left + "px"
+			// button_inside.style.marginTop += button_top + "px"
+		})
+	</script>
+</body>
+</html>

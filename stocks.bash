@@ -1,0 +1,1 @@
+pip install polygon-api-client pandas numpy tqdm

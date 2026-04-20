@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+	<script src = "https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/p5.min.js"></script>
+</head>
+<body>
+	<!-- <img src="penguin2.png" alt="A golden retriever dog fetching a ball"> -->
+	<script>
+		// let img;
+		// function preload() {
+		// 	img = loadImage("penguin2.png")
+		// }
+		let circle_width = 1000
+		let circle_height = 1000
+		// console.log(getImageData(10, 10, 1, 1))
+
+
+		function draw() {
+			// background("#a89eff")
+			// fill("#d66b6b")
+			// rect(200, 200, 120, 70)
+			// stroke("FFFFFF")
+			// strokeWeight(5)
+			// fill("#ffbdea")
+			// circle(100, -100, 50)
+			// image(img, 0, 0, 400, 400);
+			// width = 20
+			// height = 20
+			// for(let j=0;j<=width;j++) {
+			// 	for(let i=0; i<=height;i++) {
+			// 		// setTimeout(() => {
+    		// 		ellipse(i*400/width, j*400/height, 400/width, 400/height)
+  			// 		// }, 2000); 
+			// 		// ellipse(i*400/width, j*400/height, 400/width, 400/height)
+			// 	}
+			// }
+		}
+
+		async function setup() {
+
+			createCanvas(400, 400)
+
+			fill(220);
+			rect(0, 0, 400)
+			let c = get(50, 90);
+			console.log(c)
+
+			// const canvas = document.getElementById('myCanvas');
+			// const ctx = canvas.getContext('2d');
+
+			// // Get the pixel data at coordinate (x, y)
+			// const imageData = ctx.getImageData(x, y, 1, 1);
+
+			// // Access the RGBA values from the .data property
+			// const pixel = imageData.data; 
+			// const r = pixel[0]; // Red (0-255)
+			// const g = pixel[1]; // Green (0-255)
+			// const b = pixel[2]; // Blue (0-255)
+			// const a = pixel[3]; // Alpha (0-255)
+
+			// let circle_width = 100
+			
+			const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+
+  			for(let j=0;j<=circle_width;j++) {
+				for(let i=0; i<=circle_height;i++) {
+					// setTimeout(() => {
+					noStroke()
+					fill(200, 0, 0)
+    				ellipse(i*400/circle_width, j*400/circle_height, 400/circle_width, 400/circle_height)
+
+					await sleep(0.1);
+
+					fill(220, 220, 220, 255/(circle_width*circle_height))
+    				rect(0, 0, 400)
+					
+
+    				// fill(220, 220, 220)
+    				// ellipse(i*400/width-20, j*400/height, 400/width, 400/height)
+
+  					// }, 2000); 
+					// ellipse(i*400/width, j*400/height, 400/width, 400/height)
+				}
+			}
+		}
+
+
+	</script>
+</body>
+</html>
+<!-- March 16 - I started doing p5 drawing -->
+<!-- April 6 - nested for loops - trying to make a drawing -->

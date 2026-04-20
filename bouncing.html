@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+	<script src = "https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/p5.min.js"></script>
+</head>
+<body>
+	<script>
+		const mySound = new Audio('real-button-click.mp3');
+		
+		function setup() {
+			createCanvas(600, 600)
+			// background(200)
+			rectMode(CENTER)
+			xpos = Math.random()*400 + 100
+			ypos = height/4
+			yvelocity = 1
+			xvelocity = 5
+		}
+
+		size = 50
+
+		function draw() {
+			background(200)
+			yvelocity += 1.5
+			counter = 100
+			// counter = 0
+			// xvelocity = xvelocity/1.01
+
+			ypos += yvelocity
+			xpos += xvelocity
+
+			if(ypos > height-(size/2)) {
+				ypos = height - size/2
+				// yvelocity = -30
+				yvelocity = -40
+
+				if(counter>1) {
+					mySound.pause();
+	        		mySound.currentTime = 0;
+	        		mySound.play();
+	        		counter=0
+	        	} else {
+	        		console.log("hello")
+	        		size += 50
+	        	}
+
+	        	// counter=0
+			}
+
+			if(xpos > width - (size/2)) {
+				xpos = width - (size/2)
+				xvelocity = -5
+
+				if(counter>1) {
+					mySound.pause();
+	        		mySound.currentTime = 0;
+	        		mySound.play();
+	        		counter=0
+	        	} else {
+	        		console.log("hello")
+	        		size += 50
+	        	}
+
+			} else if(xpos < (size/2)) {
+				xpos = (size/2)
+				xvelocity = 5
+
+				if(counter>1) {
+					mySound.pause();
+	        		mySound.currentTime = 0;
+	        		mySound.play();
+	        		counter=0
+	        	} else {
+	        		console.log("hello")
+	        		size += 50
+	        	}
+
+			}
+			circle(xpos, ypos, size)
+
+			counter++
+			console.log(counter)
+
+		}
+
+		
+
+	</script>
+</body>
+</html>

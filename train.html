@@ -6,13 +6,61 @@
 	<title>train</title>
 
 	<style>
-		#train {
-			display:flex;
-			gap:12px;
-			margin-left: 0px;
+		:root {
+  			--distance-left: 0px;
+  			--distance-left-end: 114px;
 		}
 
-		.cart {
+		@keyframes train_move {
+			from { 
+				transform: translateY(0px) scaleX(1) scaleY(1); 
+				/*transform: scaleX(1);
+				transform: scaleY(1);*/
+			}
+			to {
+				transform: translateY(200px) scaleX(0) scaleY(0); 
+				/*transform: scaleX(0);
+				transform: scaleY(0);*/
+			}
+		}
+
+		.make_train_move {
+		  animation-name: train_move;
+		  animation-duration: 2s;
+		  animation-iteration-count: 1;
+		  animation-fill-mode: forwards; 
+		}
+
+		@keyframes front_move {
+			from { 
+				transform: translateX(var(--distance-left)); 
+			}
+			to {
+				transform: translateX(var(--distance-left-end)); 
+			}
+		}
+
+		.make_front_move {
+		  animation-name: front_move;
+		  animation-duration: 2s;
+		  animation-iteration-count: var(--num-iterations);
+		  animation-fill-mode: forwards; 
+		}
+		/*.lose {
+			width:1500px;
+			height:1000px;
+			background-color:gray;
+			position:absolute;
+			display: ;
+		}*/
+
+		#train {
+			display:flex;
+			/*gap:12px;*/
+			margin-left: 200px;
+		}
+
+		/*.cart {
 			border: 1px solid black;
 			min-width: 100px;
 			height:80px;
@@ -36,29 +84,81 @@
 			content:"";
 			width:30px;
 			height:30px;
-			/*display:block;*/
 			border-radius:50%;
 			border:1px solid black;
 			position:absolute;
 			bottom:0;
 			bottom:-15px;
 			background-color:white;
+		}*/
+
+		.cart{
+			min-width: 115.5px;
+			height:70px;
+			text-align:center;
+			position:relative;
+			background-image: url("middle_train.png");
+			background-size: cover; 
+  			background-position: center; 
+  			background-repeat: no-repeat; 
+  			color:red;
+
+  			display: flex;
+  			flex-direction: column; /* Stacks children vertically */
+  			justify-content: flex-end;
+  			padding-bottom: 10px;
+		}
+
+		#front {
+			background-image: url("front_train.png");
+		}
+
+		.rail {
+			width:110%;
+			height:2px;
+			background-color:black;
+			margin-bottom:0px;
+		}
+
+		.track {
+			width:2px;
+			height:8px;
+			background-color: black;
+			display:inline-block;
+			margin-left: 20px;
+			/*gap:20px;*/
+			margin-bottom:8px;
+		}
+		#tracks {
+			margin-bottom:-12px;
 		}
 	</style>
 </head>
 <body>
-
+	<!-- <image src="https://artprojectsforkids.org/wp-content/uploads/2022/02/Train-Coloring-Page.jpg"></image> -->
 	<input type="text" id = "person">
 	<button id = "add-person">add person</button>
 	<button id = "remove-person">remove person</button>
-
+	<div id = "score">Score: 0</div>
 	<div id="train">
-		<div class="cart">alex</div>
+		<div id="front" class = "cart"></div>
+		<!-- <div class="cart">alex</div>
 		<div class="cart">gia</div>
-		<div class="cart">theo</div>
+		<div class="cart">theo</div> -->
+	</div>
+	<div id = "train_tracks">
+		<div class = "rail"></div>
+		<div id = "tracks"></div>
+		<div class = "rail"></div>
 	</div>
 
 	<script>
+		for(let i = 0; i<66; i++) {
+			let track = document.createElement("div")
+			track.classList.add("track")
+			document.getElementById("tracks").appendChild(track)
+		}
+
 		const words = [
 		  "a","ability","able","about","above","accept","according","account","across","act",
 		  "action","activity","actually","add","address","administration","admit","adult","affect","after",
@@ -162,65 +262,226 @@
 		  "wrong","yard","yeah","year","yes","yet","you","young","your","yourself"
 		];
 
-		let people = [words[(Math.random()*999).parseInt()], words[(Math.random()*999).parseInt()], words[(Math.random()*999).parseInt()]]
-		list_id = ["alex", "gia", "theo"]
+		first_word = Math.round((Math.random()*999))
+		second_word = Math.round((Math.random()*999))
+		third_word = Math.round((Math.random()*999))
+		fourth_word = Math.round((Math.random()*999))
+		fifth_word = Math.round((Math.random()*999))
+		sixth_word = Math.round((Math.random()*999))
+		seventh_word = Math.round((Math.random()*999))
+		eighth_word = Math.round((Math.random()*999))
+		ninth_word = Math.round((Math.random()*999))
+		tenth_word = Math.round((Math.random()*999))
+		eleventh_word = Math.round((Math.random()*999))
+		twelfth_word = Math.round((Math.random()*999))
+		thirteenth_word = Math.round((Math.random()*999)) 
+
+		first_word_id = words[first_word] + "_id"
+		second_word_id = words[second_word] + "_id"
+		third_word_id = words[third_word] + "_id"
+		fourth_word_id = words[fourth_word] + "_id"
+		fifth_word_id = words[fifth_word] + "_id"
+		sixth_word_id = words[sixth_word] + "_id"
+		seventh_word_id = words[seventh_word] + "_id"
+		eighth_word_id = words[eighth_word] + "_id"
+		ninth_word_id = words[ninth_word] + "_id"
+		tenth_word_id = words[tenth_word] + "_id"
+		eleventh_word_id = words[eleventh_word] + "_id"
+		twelfth_word_id = words[twelfth_word] + "_id"
+		thirteenth_word_id = words[thirteenth_word] + "_id"
+
+
+		let people = [words[first_word], words[second_word], words[third_word], words[fourth_word], words[fifth_word], words[sixth_word], words[seventh_word], words[eighth_word], words[ninth_word], words[tenth_word], words[eleventh_word], words[twelfth_word], words[thirteenth_word]]
+		let list_id = [first_word_id, second_word_id, third_word_id, fourth_word_id, fifth_word_id, sixth_word_id, seventh_word_id, eighth_word_id, ninth_word_id, tenth_word_id, eleventh_word_id, twelfth_word_id, thirteenth_word_id]
+		console.log(people)
+		console.log(list_id)
 		// people.push("kevin")
 		// people.pop()
 		// console.log(people)
 
 		
 
-		// addPerson = document.getElementById("add-person")
+		function makeTrains() {
+			for(let i = 0; i<13; i++) {
+				let new_car = document.createElement("div")
+				new_car.classList.add("cart")
+				
+				let car_inside = document.getElementById("car_id")
 
-		// addPerson.addEventListener("click", function() {
-		// 	people.push(person.value)
-		// 	console.log(people)
+					// listid.push(newid)
 
-		// 	for(let i = 0; i<3; i++) {
-		// 		let new_car = document.createElement("div")
-		// 		new_car.classList.add("cart")
-		// 		// car_id = Math.random() + "thing"
-		// 		let car_inside = document.getElementById("car_id")
+					// // console.log(listid)
 
-		// 			// listid.push(newid)
+				// car_id.id = 
+				new_car.setAttribute('id', list_id[i]);
+				new_car.textContent = people[i]
+				document.getElementById("train").appendChild(new_car)
+				// background-image: url("middle_train.png");
+			// background-size: cover; 
+  			// background-position: center; 
+  			// background-repeat: no-repeat;
+				const newCar = document.getElementById(list_id[i])
+				// if(i==0) {
+				// 	newCar.style.backgroundImage = "url(front_train.png)"
+				// } else {
+				// 	newCar.style.backgroundImage = "url(middle_train.png)"
+				// }
 
-		// 			// // console.log(listid)
+				// newCar.style.backgroundSize = "cover"
+				// newCar.style.backgroundPosition = "center"
+				// newCar.style.backgroundRepeat = "no-repeat"
+				
 
-		// 			// piece.id = newid
+				// car_inside.textContent = person[i]
+			}
+		}
 
-		// 		document.getElementById("train").appendChild(new_car)
-
-		// 		// car_inside.textContent = person[i]
-		// 	}
+		makeTrains()
 
 			
 
 		// })
 		addPerson = document.getElementById("add-person")
 
-		addPerson.addEventListener("click", function() {
-			if(person.value == people[0]) {
+		// addPerson.addEventListener("click", function() {
+		// 	if(person.value == people[0]) {
+		// 		first_word = second_word
+		// 		second_word = third_word
+		// 		third_word = Math.round((Math.random()*999))
+
+		// 		first_word_id = second_word_id
+		// 		second_word_id = third_word_id
+		// 		third_word_id = words[third_word] + "_id"
+
+		// 		people = [words[first_word], words[second_word], words[third_word]]
+		// 		list_id = [first_word_id, second_word_id, third_word_id]
+
+
+		// 		console.log("nicejob")
+
+		// 		let new_car = document.createElement("div")
+		// 		new_car.classList.add("cart")
+		// 		car_id = third_word_id
+		// 		let car_inside = document.getElementById("car_id")
+
+		// 		// list_id.push(car_id)
+		// 		// list_id.shift()
+
+		// 		// console.log(list_id)
+
+		// 		// 	piece.id = newid
+
+		// 		document.getElementById("train").appendChild(new_car)
+
+		// 		// people.shift()
+		// 		// people.push("")
+		// 		new_car.textContent = words[third_word]
+		// 		console.log(people)
+
+		// 		person.value = ""
+		// 	}
+		// })
+
+		let score = 0
+		let distance_left = -114
+		let distance_left_end = 0
+
+		let distance_left_px = distance_left + "px"
+		let distance_left_end_px = distance_left_end + "px"
+
+		document.getElementById("person").addEventListener("keydown", function(event) {
+		  if (event.key === "Enter") {
+		    event.preventDefault(); // Prevent default form submission
+		    
+
+		    if(person.value == people[0] && speed!= 0) {
+		    	// front_carInside = document.getElementById(list_id[1])
+		    	// front_carInside.style.backgroundImage = "url(front_train.png)"
+
+		    	score++
+		    	document.getElementById("score").textContent = "Score: " + score
+
+		    	// let thing_inside=document.getElementById(first_word_id)
+		    	// console.log(list_id)
+		    	// thing_inside.remove()
+		    	// document.getElementById("train").style.marginLeft = parseInt(document.getElementById("train").style.marginLeft.replace(/[px]/g, '')) + 114 + "px"
+
+		    	// mover += 114
+		    	// iterations++
+		    	// document.documentElement.style.setProperty("--num-iterations", iterations)
+		    	distance_left += 115.5
+				distance_left_end = 115.5+distance_left
+
+				distance_left_px = distance_left + "px"
+				distance_left_end_px = distance_left_end + "px"
+
+				document.documentElement.style.setProperty("--distance-left", distance_left_px)
+				document.documentElement.style.setProperty("--distance-left-end", distance_left_end_px)
+
+		    	document.getElementById("front").classList.remove("make_front_move")
+		    	document.getElementById("front").offsetWidth
+		    	document.getElementById("front").classList.add("make_front_move")
+		    	// my idea is to make it at the end of the aniamtion to go back to where it was, and then do what i did before to combine them (then the game doesnt end early)
+
+
+		    	let thing_inside=document.getElementById(first_word_id)
+		    	thing_inside.classList.add('make_train_move');
+
+
+				first_word = second_word
+				second_word = third_word
+				third_word = fourth_word
+				fourth_word = fifth_word
+				fifth_word = sixth_word
+				sixth_word = seventh_word
+				seventh_word = eighth_word
+				eighth_word = ninth_word
+				ninth_word = tenth_word
+				tenth_word = eleventh_word
+				eleventh_word = twelfth_word
+				twelfth_word = thirteenth_word
+				thirteenth_word = Math.round((Math.random()*999))
+
+				first_word_id = second_word_id
+				second_word_id = third_word_id
+				third_word_id = fourth_word_id
+				fourth_word_id = fifth_word_id
+				fifth_word_id = sixth_word_id
+				sixth_word_id = seventh_word_id
+				seventh_word_id = eighth_word_id
+				eighth_word_id = ninth_word_id
+				ninth_word_id = tenth_word_id
+				tenth_word_id = eleventh_word_id
+				eleventh_word_id = twelfth_word_id
+				twelfth_word_id = thirteenth_word_id
+				thirteenth_word_id = words[thirteenth_word] + "_id"
+
+
+
+				people = [words[first_word], words[second_word], words[third_word], words[fourth_word], words[fifth_word], words[sixth_word], words[seventh_word], words[eighth_word], words[ninth_word], words[tenth_word], words[eleventh_word], words[twelfth_word], words[thirteenth_word]]
+				list_id = [first_word_id, second_word_id, third_word_id, fourth_word_id, fifth_word_id, sixth_word_id, seventh_word_id, eighth_word_id, ninth_word_id, tenth_word_id, eleventh_word_id, twelfth_word_id, thirteenth_word_id]
+
+
 				console.log("nicejob")
 
 				let new_car = document.createElement("div")
 				new_car.classList.add("cart")
-				car_id = Math.random() + "thing"
+				car_id = third_word_id
 				let car_inside = document.getElementById("car_id")
 
-				list_id.push(car_id)
-				list_id.shift()
-
-				console.log(list_id)
-
-				// 	piece.id = newid
 
 				document.getElementById("train").appendChild(new_car)
 
-				people.shift()
-				people.push("")
+				new_car.textContent = words[thirteenth_word]
+				new_car.setAttribute('id', list_id[12]);
 				console.log(people)
+		    	document.getElementById(list_id[12]).style.backgroundImage = "url(middle_train.png)"
+				person.value = ""
+
 			}
-		})
+		  }
+		});
+
 
 
 		removePerson = document.getElementById("remove-person")
@@ -230,12 +491,58 @@
 			console.log(people)
 		})
 
-		let mover = 0
+		let mover = 200
+		let speed = 1
 
 		setInterval(function() {
-			mover+=-1
+			mover+=-0.1*speed
+			speed = speed* 1.001
 			document.getElementById("train").style.marginLeft = mover + "px"
-		}, 100)
+
+			if(mover+distance_left_end<=0) {
+				// mover = 0 + distance_left_end
+				speed = 0
+
+				let you_lose = document.createElement("div")
+				you_lose.classList.add("lose")
+				// let car_inside = document.getElementById("car_id")
+
+				document.body.appendChild(you_lose)
+
+				// people.shift()
+				// people.push("")
+				// new_car.textContent = words[thirteenth_word]
+				// new_car.setAttribute('id', list_id[12]);
+				// console.log(people)
+
+			}
+		}, 10)
+
+
+		// let this_class = {
+		// 	subject: "cs",
+		// 	size: 7,
+		// 	teacher: "lexie"
+		// }
+
+		// console.log(this_class.teacher)
+
+// in class
+		// let timmy = {
+		// 	name: "timmy",
+		// 	studentId:"c29tc",
+		// 	fav_color: "red"
+		// }
+
+		
+		// let people2 = [
+		// 	timmy,
+		// 	kevin,
+		// 	theo,
+		// 	{name: "kevin", studentId: "c29ks", fav_color: "green"}
+		// ]
+
+
 	</script>
 </body>
 </html>
