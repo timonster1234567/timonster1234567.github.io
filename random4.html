@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title></title>
+	<script src = "https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/p5.min.js"></script>
+	<style>
+		#test {
+			margin-top:0px;
+			z-index: 100;
+			font-size:100px;
+		}
+
+		#test2 {
+			margin-top:0px;
+			z-index: 100;
+			font-size:50px;
+		}
+
+		#test3 {
+			margin-top:0px;
+			z-index: 100;
+			font-size:50px;
+		}
+
+		#sketch-container {
+			margin-top:0px;
+			z-index: 500;
+		}
+
+		#frame_rate {
+			width:1000px;
+			height:50px;
+		}
+
+	</style>
+</head>
+<body>
+	<div id = "sketch-container"></div>
+	<input type="range" min="0" max="60" step="1" value="60" id = "frame_rate">
+	<div id="test">hello</div>
+	<div id="test2">click a rabbit to see its DNA</div>
+	<div id="test3">click a fox to see its DNA</div>
+	<script>
+		food_worth = 600
+		rabbit_worth = 2000
+		fox_worth = 3500
+
+		rabbit_color = "rgb(95, 227, 115)"
+		rabbit_color_flee = "rgb(196, 247, 115)"
+		fox_color = "rgb(227, 95, 95)"
+		fox_color_flee = "rgb(186, 48, 48)"
+		fox_color_charge = "rgb(250, 140, 82)"
+		bear_color = "rgb(209, 162, 105)"
+		bear_color_charge = "rgb(66, 42, 12)"
+
+
+		rabbit_hunger = -1
+		fox_hunger = -1
+		bear_hunger = -1.25
+
+
+		rabbit_reproduction = 2000
+		fox_reproduction = 15000
+		bear_reproduction = 15000
+
+
+
+		function setup() {
+			// frameRate(20)
+			width = 3000
+			height = 3000
+			createCanvas(width, height).parent('sketch-container')
+			background(230)
+			rectMode(CENTER)
+
+
+			for(let z=0; z<width*height/5000; z++) {
+				console.log("make food")
+				makeFood()
+			}
+
+			for(let i=0; i<width*height/50000; i++) {
+				// console.log("make food")
+				createNewAnimal()
+			}
+
+			for(let i=0; i<width*height/100000; i++) {
+				// console.log("make food")
+				createNewFox()
+			}
+
+			for(let i=0; i<width*height/250000; i++) {
+				// console.log("make food")
+				createNewBear()
+			}
+
+			console.log(food)
+		}
+
+		direction = 0
+		direction2 = 0
+		x = 200
+		y = 200
+		x2 = 205
+		y2 = 205
+
+		x3 = 300
+		y3 = 300
+		x4 = 305
+		y4 = 305
+		clicked = 0
+		// orientation [x, y, x2, y2, direction, hunger]
+		// rabbit dna [speed, flee_distance, flee_speed]
+		// fox dna [speed, charge_distance, charge_speed, flee_distance, flee_speed]
+		// bear dna [speed, charge_distance, charge_speed]
+		list_animals = [[x, y, x2, y2, direction, 1000, [Math.random()*1.5+0.5, 100, Math.random()*1.5+0.5]], [x3, y3, x4, y4, direction2, 1000, [Math.random()*1.5+0.5, Math.random()*400, Math.random()*1.5+0.5]]]
+		list_foxes = [[100, 200, 105, 205, Math.random()*6, 5000, [Math.random()*1.5+0.5, Math.random()*400, Math.random()*1.5+0.5, Math.random()*400, Math.random()*1.5+0.5]]]
+
+		list_bears = [[150, 200, 155, 205, Math.random()*6, 10000, [Math.random()*1.5+0.5, 400, Math.random()*1.5+0.5]]]
+		
+		random_num = 0
+
+		first = 0
+
+		speed = 1
+
+
+		function draw() {
+			for(let i = 0; i<speed; i++) {
+				stroke("black")
+				strokeWeight(1)
+				fill(255, 255, 255, 255)
+				rect(width/2, height/2, width, height)
+
+
+				for(let p = 0; p<food.length; p++) {
+					fill("gray")
+					noStroke()
+					circle(food[p][0], food[p][1], 5)
+				}
+
+
+				// replenish every 200 rounds - total = width*height/2000
+				// if(Math.round(random(0, 200/((width*height)/2000))) == 10) {
+				if(Math.round(random(0, 30)) == 10) {
+					for(let i = 0; i<Math.round(width*height/100000) - 1; i++) {
+						makeFood()
+					}
+
+					
+					// console.log("more food")
+				}
+
+				
+
+
+				random_num = Math.random()
+				// strokeWeight(random(1, 3))
+				strokeWeight(10)
+				// if(first/2 == round(first/2)) {
+					// FIRST BUG
+					// first = 0
+				// make the rabbits move and also hungrier
+				for(let i = 0; i<list_animals.length; i++) {
+					doMove(list_animals[i][0], list_animals[i][2], list_animals[i][1], list_animals[i][3], list_animals[i][4], "red", i, list_animals[i][6][0], list_animals[i][6][1], list_animals[i][6][2], 1, 1)
+					// list_animals[i][5] += -1*list_animals[i][6][0]
+				}
+
+				// make the foxes get hungry
+				// for(let j = 0; j<list_foxes.length; j++) {
+				// 	list_foxes[j][5] += -3*list_foxes[j][6][0]
+				// }
+
+				strokeWeight(20)
+				for(let t = 0; t<list_foxes.length; t++) {
+					doMove(list_foxes[t][0], list_foxes[t][2], list_foxes[t][1], list_foxes[t][3], list_foxes[t][4], "green", t, list_foxes[t][6][0], list_foxes[t][6][1], list_foxes[t][6][2], list_foxes[t][6][3], list_foxes[t][6][4])
+					
+				}
+
+				strokeWeight(30)
+				for(let t = 0; t<list_bears.length; t++) {
+					doMove(list_bears[t][0], list_bears[t][2], list_bears[t][1], list_bears[t][3], list_bears[t][4], "brown", t, list_bears[t][6][0], list_bears[t][6][1], list_bears[t][6][2], 1, 1)
+					
+				}
+
+				// check if foxes eat rabbits or rabbits died of hunger
+				killAnimal(list_foxes, list_animals)
+
+				// check if bears eat foxes
+				killAnimal(list_bears, list_foxes)
+
+				// check if the rabbits should eat the food
+				eatFood()
+
+				// if rabbits have enough food they reproduce
+				reproduce()
+				// if(list_animals[0][5] <= 0) {
+				// 	console.log("dead")
+				// }
+
+				
+
+				// console.log(list_foxes[0][5])
+
+				document.getElementById("test").innerText = "food: " + food.length.toString() + "    rabbits: " + list_animals.length.toString() + "    foxes: " + list_foxes.length.toString() + "    bears: " + list_bears.length.toString()
+
+
+				// document.getElementById("test").innerText = "food: " + food.length.toString() + "    rabbits: " + list_animals.length.toString()
+
+
+				// change the frameRate
+				// console.log(document.getElementById("frame_rate").value)
+				frameRate(parseInt(document.getElementById("frame_rate").value))
+				// frameRate(10)
+			}
+		}
+
+		function mousePressed() {
+  			clicked = 1
+		}
+
+		function mouseReleased() {
+  			clicked = 0
+		}
+
+		function doMove(thingX1, thingX2, thingY1, thingY2, the_direction, color, which_animal, speed, the_flee_distance, the_flee_speed, flee_distance2, flee_speed2) {
+
+
+
+
+			// console.log(food[record][0])
+			if(color == "red") {
+				// make the rabbits move
+				if(food.length>0) {
+					closestFood(food, thingX2, thingY2)
+
+				} else {
+					record = 0
+				}
+
+
+				closestThreat(list_foxes, thingX2, thingY2)
+				if(record_distance_threat<the_flee_distance) {
+					// fleeing
+					if ((thingX2-list_foxes[record_threat][0])>0) {
+						// the_direction = atan(abs((y-mouseY))/abs((x-mouseX))) + 1*(Math.random()-0.5)
+						the_direction = (atan((thingY2-list_foxes[record_threat][3])/abs((thingX2-list_foxes[record_threat][0]))) + 1*(Math.random()-0.5) + the_direction*19)/20
+					} else {
+						the_direction = (atan((thingY2-list_foxes[record_threat][3])/(thingX2-list_foxes[record_threat][0])) + PI + 1*(Math.random()-0.5) + the_direction*19)/20
+					}
+
+					thingX2 = thingX1 + (2 * cos(the_direction) * the_flee_speed)
+					thingY2 = thingY1 + (2 * sin(the_direction) * the_flee_speed)
+					stroke(rabbit_color_flee)
+					line(thingX1, thingY1, thingX2, thingY2)
+
+					// make hungrier using flee speed
+					list_animals[which_animal][5] += rabbit_hunger*list_animals[which_animal][6][2]
+				} else if (food.length>1){
+					// going towards food
+					if ((thingX2-food[record][0])>0) {
+						// the_direction = atan(abs((y-mouseY))/abs((x-mouseX))) + 1*(Math.random()-0.5)
+						the_direction = (atan((thingY2-food[record][1])/abs((thingX2-food[record][0]))) + PI + 1*(Math.random()-0.5) + the_direction*19)/20
+					} else {
+						the_direction = (atan((thingY2-food[record][1])/(thingX2-food[record][0])) + 1*(Math.random()-0.5) + the_direction*19)/20
+					}
+
+					thingX2 = thingX1 + (2 * cos(the_direction) * speed)
+					thingY2 = thingY1 + (2 * sin(the_direction) * speed)
+					stroke(rabbit_color)
+					line(thingX1, thingY1, thingX2, thingY2)
+
+					// make hungrier using normal speed
+					list_animals[which_animal][5] += rabbit_hunger*list_animals[which_animal][6][0]
+				} else {
+					// no food left and not fleeing
+					the_direction = the_direction+0.7*(Math.random()-0.5)
+					thingX2 = thingX1 + (2 * cos(the_direction) * speed)
+					thingY2 = thingY1 + (2 * sin(the_direction) * speed)
+					stroke(rabbit_color)
+					line(thingX1, thingY1, thingX2, thingY2)
+				}
+			} else if (color == "green") {
+				// 1. Find closest threat, find closest fox
+				// 2. Check if its flee_distance2 < closest threat distance, if so flee and get hungrier at flee speed
+				// 3. Else if closest fox < charge distance, if so charge towards the fox and get hungrier at charge speed
+				// 4. Else, go randomly
+
+				// console.log("fox")
+				// make the foxes move
+				closestFood(list_animals, thingX2, thingY2)
+				closestThreat(list_bears, thingX2, thingY2)
+				if(record_distance_threat<flee_distance2) {
+					// fleeing
+					if ((thingX2-list_bears[record_threat][0])>0) {
+						// the_direction = atan(abs((y-mouseY))/abs((x-mouseX))) + 1*(Math.random()-0.5)
+						the_direction = (atan((thingY2-list_bears[record_threat][3])/abs((thingX2-list_bears[record_threat][0]))) + 1*(Math.random()-0.5) + the_direction*19)/20
+					} else {
+						the_direction = (atan((thingY2-list_bears[record_threat][3])/(thingX2-list_bears[record_threat][0])) + PI + 1*(Math.random()-0.5) + the_direction*19)/20
+					}
+
+					thingX2 = thingX1 + (2 * cos(the_direction) * flee_speed2)
+					thingY2 = thingY1 + (2 * sin(the_direction) * flee_speed2)
+					stroke(fox_color_flee)
+					line(thingX1, thingY1, thingX2, thingY2)
+
+					// make hungrier using flee speed
+					list_foxes[which_animal][5] += fox_hunger*list_foxes[which_animal][6][2]
+				} else if(record_distance<the_flee_distance) {
+
+					// charging
+					if ((thingX2-list_animals[record][0])>0) {
+						// the_direction = atan(abs((y-mouseY))/abs((x-mouseX))) + 1*(Math.random()-0.5)
+						the_direction = (atan((thingY2-list_animals[record][1])/abs((thingX2-list_animals[record][0]))) + PI + 1*(Math.random()-0.5) + the_direction*19)/20
+					} else {
+						the_direction = (atan((thingY2-list_animals[record][1])/(thingX2-list_animals[record][0])) + 1*(Math.random()-0.5) + the_direction*19)/20
+					}
+					thingX2 = thingX1 + (2 * cos(the_direction) * the_flee_speed)
+					thingY2 = thingY1 + (2 * sin(the_direction) * the_flee_speed)
+					stroke(fox_color_charge)
+					line(thingX1, thingY1, thingX2, thingY2)
+
+					// make hungrier using charging speed
+					list_foxes[which_animal][5] += fox_hunger*list_foxes[which_animal][6][2]
+				} else {
+					// meendering
+					the_direction = the_direction+0.7*(Math.random()-0.5)
+					thingX2 = thingX1 + (2 * cos(the_direction) * speed)
+					thingY2 = thingY1 + (2 * sin(the_direction) * speed)
+					stroke(fox_color)
+					line(thingX1, thingY1, thingX2, thingY2)
+
+					// make hungrier using normal speed
+					list_foxes[which_animal][5] += fox_hunger*list_foxes[which_animal][6][0]
+				}
+
+				// thingX2 = thingX1 + (2 * cos(the_direction) * speed)
+				// thingY2 = thingY1 + (2 * sin(the_direction) * speed)
+				// stroke("black")
+				// line(thingX1, thingY1, thingX2, thingY2)
+			} else {
+
+				// console.log("bear")
+				closestFood(list_foxes, thingX2, thingY2)
+
+				if(record_distance<the_flee_distance) {
+					// charging
+					// console.log(record + "is this")
+					if ((thingX2-list_foxes[record][0])>0) {
+						// the_direction = atan(abs((y-mouseY))/abs((x-mouseX))) + 1*(Math.random()-0.5)
+						the_direction = (atan((thingY2-list_foxes[record][1])/abs((thingX2-list_foxes[record][0]))) + PI + 1*(Math.random()-0.5) + the_direction*19)/20
+					} else {
+						the_direction = (atan((thingY2-list_foxes[record][1])/(thingX2-list_foxes[record][0])) + 1*(Math.random()-0.5) + the_direction*19)/20
+					}
+					thingX2 = thingX1 + (2 * cos(the_direction) * the_flee_speed)
+					thingY2 = thingY1 + (2 * sin(the_direction) * the_flee_speed)
+					stroke(bear_color_charge)
+					line(thingX1, thingY1, thingX2, thingY2)
+
+					// make hungrier using charging speed
+					list_bears[which_animal][5] += bear_hunger*list_bears[which_animal][6][2]
+				} else {
+					// meendering
+					the_direction = the_direction+0.7*(Math.random()-0.5)
+					thingX2 = thingX1 + (2 * cos(the_direction) * speed)
+					thingY2 = thingY1 + (2 * sin(the_direction) * speed)
+					stroke(bear_color)
+					line(thingX1, thingY1, thingX2, thingY2)
+
+					// make hungrier using normal speed
+					list_bears[which_animal][5] += bear_hunger*list_bears[which_animal][6][0]
+				}
+			}
+			
+
+				// thingX2 = thingX1 + (2 * cos(the_direction) * speed)
+				// thingY2 = thingY1 + (2 * sin(the_direction) * speed)
+				// stroke(color)
+				// line(thingX1, thingY1, thingX2, thingY2)
+
+				if(thingX1>=width) {
+					// console.log("teleportX")
+					thingX1 = 1
+				} else if(thingX1<0) {
+					// console.log("bad")
+					thingX1 = width - 1
+				} else {
+					thingX1 = thingX2
+				}
+
+
+
+				if(thingY1>height) {
+					thingY1 = 0
+				} else if(thingY1<0) {
+					thingY1 = height
+				} else {
+					thingY1 = thingY2
+				}
+				
+				if(color == "red") {
+					list_animals[which_animal][4] = the_direction
+					list_animals[which_animal][0] = thingX1
+					list_animals[which_animal][2] = thingX2
+					list_animals[which_animal][1] = thingY1
+					list_animals[which_animal][3] = thingY2
+				} else if (color == "green") {
+					list_foxes[which_animal][4] = the_direction
+					list_foxes[which_animal][0] = thingX1
+					list_foxes[which_animal][2] = thingX2
+					list_foxes[which_animal][1] = thingY1
+					list_foxes[which_animal][3] = thingY2
+				} else {
+					list_bears[which_animal][4] = the_direction
+					list_bears[which_animal][0] = thingX1
+					list_bears[which_animal][2] = thingX2
+					list_bears[which_animal][1] = thingY1
+					list_bears[which_animal][3] = thingY2
+				}
+				
+
+		}
+
+		// number_of_animals = 2
+		tempX = 0
+		tempY = 0
+		function createNewAnimal() {
+			tempX = Math.random()*width
+			tempY = Math.random()*height
+
+			list_animals.push([tempX, tempY, tempX+5, tempY+5, Math.random()*6, 1000, [Math.random()*1.5+0.5, Math.random()*400, Math.random()*1.5+0.5]])
+		}
+
+		function createNewFox() {
+			tempX2 = Math.random()*width
+			tempY2 = Math.random()*height
+
+			list_foxes.push([tempX2, tempY2, tempX2+5, tempY2+5, Math.random()*6, 3000, [Math.random()*1.5+0.5, Math.random()*400, Math.random()*1.5+0.5, Math.random()*400, Math.random()*1.5+0.5]])
+		}
+
+		function createNewBear() {
+			tempX3 = Math.random()*width
+			tempY3 = Math.random()*height
+
+			list_bears.push([tempX3, tempY3, tempX3+5, tempY3+5, Math.random()*6, 5000, [Math.random()*1.5+0.5, Math.random()*400, Math.random()*1.5+0.5]])
+		}
+
+
+		function mouseClicked(event) { 
+			// createNewAnimal()
+
+			closestFood(list_animals, mouseX, mouseY)
+			// console.log(list_animals)
+
+			if(record_distance<=50) {
+				document.getElementById("test2").innerText = "rabbit - speed: " + (list_animals[record][6][0]).toString() + "    flee_distance: " + (list_animals[record][6][1]).toString() + "    flee_speed: " + (list_animals[record][6][2]).toString()
+			}
+
+			closestFood(list_foxes, mouseX, mouseY)
+
+			if(record_distance<=50) {
+				document.getElementById("test3").innerText = "fox - speed: " + (list_foxes[record][6][0]).toString() + "    flee_distance: " + (list_foxes[record][6][1]).toString() + "    flee_speed: " + (list_foxes[record][6][2]).toString()
+			}
+			
+			// console.log(list_animals[record][6][0], list_animals[record][6][1], list_animals[record][6][2])
+			// record
+
+			if (event.shiftKey) {
+    			for(let i = 0; i<50; i++)
+    			food.push([mouseX + (Math.random()-0.5)*100, mouseY + (Math.random()-0.5)*100])
+			    // Add your shift-click action here
+			} 
+		}
+
+		function killAnimal(predator, prey) {
+
+			for(let k = 0; k<prey.length; k++) {
+				for(let l = 0; l<predator.length; l++) {
+					if(abs(prey[k][0] - predator[l][0])<20 && abs(prey[k][3] - predator[l][3])<20) {
+						// console.log(prey[k], predator[l], k, l)
+						// console.log(prey[k][0])
+						prey.splice(k, 1)
+						// console.log("rabbit was eaten by fox")
+
+
+
+
+						// console.log("list_animals[k][0]", "predator[l][0]", "list_animals[k][3]", "predator[l][3]", "predator[l][5]")
+						// // console.log(list_animals[k][0])
+						// console.log(list_animals[k])
+						// console.log(list_animals[k][3])
+						if(predator == list_foxes) {
+							predator[l][5] += rabbit_worth
+							l=predator.length
+						} else {
+							predator[l][5] += fox_worth
+							l=predator.length
+						}
+					}
+				}
+			}
+
+
+			for(let q = 0; q<list_animals.length; q++) {
+				if(list_animals[q][5]<=0) {
+					list_animals.splice(q, 1)
+					// console.log("rabbit died of hunger")
+				}
+			}
+
+			for(let i = 0; i<list_foxes.length; i++) {
+				if(list_foxes[i][5]<=0) {
+					list_foxes.splice(i, 1)
+					// console.log("fox died of hunger")
+				}
+			}
+
+			for(let i = 0; i<list_bears.length; i++) {
+				if(list_bears[i][5]<=0) {
+					list_bears.splice(i, 1)
+					console.log("bear died of hunger")
+				}
+			}
+		}
+
+		function eatFood() {
+			for(let k = 0; k<list_animals.length; k++) {
+				for(let l = 0; l<food.length; l++) {
+					if(abs(list_animals[k][0] - food[l][0])<10 && abs(list_animals[k][3] - food[l][1])<10) {
+						food.splice(l, 1)
+						// console.log("ate food")
+
+						list_animals[k][5] += food_worth
+					}
+				}
+			}
+		}
+
+		food = [[]]
+		function makeFood() {
+			food.push([Math.random()*width, Math.random()*height])
+		}
+
+
+		function reproduce() {
+			for(let i = 0; i<list_animals.length; i++) {
+				if(list_animals[i][5]>=rabbit_reproduction) {
+					list_animals[i][5] += -1000
+					// list_animals.push([list_animals[i][0] + 5, list_animals[i][1] + 5, list_animals[i][2] + 5, list_animals[i][3] + 5, 0, 1000, [Math.random()*1.5+0.5, Math.random()*100, Math.random()*1.5+0.5]])
+					list_animals.push([list_animals[i][0] + 5, list_animals[i][1] + 5, list_animals[i][2] + 5, list_animals[i][3] + 5, 0, 1000, [abs(list_animals[i][6][0] + random(-0.01, 0.01)), abs(list_animals[i][6][1] + random(-1, 1)), abs(list_animals[i][6][2] + random(-0.01, 0.01))]])
+
+				}
+			}
+
+			for(let j = 0; j<list_foxes.length; j++) {
+				if(list_foxes[j][5]>=fox_reproduction) {
+					list_foxes[j][5] += -13000
+					list_foxes.push([list_foxes[j][0] + 5, list_foxes[j][1] + 5, list_foxes[j][2] + 5, list_foxes[j][3] + 5, 0, 2000, [abs(list_foxes[j][6][0] + random(-0.01, 0.01)), abs(list_foxes[j][6][1] + random(-1, 1)), abs(list_foxes[j][6][2] + random(-0.01, 0.01)), abs(list_foxes[j][6][3] + random(-1, 1)), abs(list_foxes[j][6][4] + random(-0.01, 0.01))]])
+				}
+			}
+
+			for(let j = 0; j<list_bears.length; j++) {
+				if(list_bears[j][5]>=bear_reproduction) {
+					list_bears[j][5] += -13000
+					list_bears.push([list_bears[j][0] + 5, list_bears[j][1] + 5, list_bears[j][2] + 5, list_bears[j][3] + 5, 0, 5000, [abs(list_bears[j][6][0] + random(-0.01, 0.01)), abs(list_bears[j][6][1] + random(-1, 1)), abs(list_bears[j][6][2] + random(-0.01, 0.01))]])
+					console.log("bear reproduced")
+				}
+			}
+		}
+
+		record_distance = 1000000000
+		record = 0
+		function closestFood(list_food, animalX, animalY) {
+			record_distance = 1000000000
+			for(let i = 0; i<list_food.length; i++) {
+				if(dist(list_food[i][0], list_food[i][1], animalX, animalY)<record_distance) {
+					record_distance = dist(list_food[i][0], list_food[i][1], animalX, animalY)
+					record = i
+					// console.log(dist(food[i][0], food[i][1], animalX, animalY))
+				}
+			}
+		}
+
+
+		record_distance_threat = 1000000000
+		record_threat = 0
+		function closestThreat(list_threats, animalX, animalY) {
+			record_distance_threat = 1000000000
+			for(let i = 0; i<list_threats.length; i++) {
+				if(dist(list_threats[i][0], list_threats[i][1], animalX, animalY)<record_distance_threat) {
+					record_distance_threat = dist(list_threats[i][0], list_threats[i][1], animalX, animalY)
+					record_threat = i
+					// console.log(dist(food[i][0], food[i][1], animalX, animalY))
+				}
+			}
+		}
+
+		// make collision with food (if eaten add 1000 to hunger), if hunger is greater than _____ reproduce, if fox eats his hunger goes up (fox also dies of hunger after longer)
+
+	</script>
+</body>
+</html>

@@ -262,3 +262,102 @@ document.getElementById("train").addEventListener("mousedown", function() {
 document.getElementById("train").addEventListener("mouseup", function() {
   train_clicked = 1
 })
+
+evolution_clicked = 0
+evolutionLeft = -100
+evolutionTop = -3
+0
+
+document.getElementById("evolution").addEventListener("mousedown", function() {
+  evolution_clicked = 0
+  mouseX = event.clientX
+  mouseY = event.clientY
+  
+    document.getElementById("evolution").addEventListener("mousemove", function() {
+      if(evolution_clicked == 0) {
+        evolutionLeft += event.clientX - mouseX
+        evolutionTop += event.clientY - mouseY
+        document.getElementById("evolution").style.marginLeft = evolutionLeft + "px"
+        document.getElementById("evolution").style.marginTop = evolutionTop + "px"
+        mouseX = event.clientX
+        mouseY = event.clientY
+
+      }
+    })
+  
+})
+
+document.getElementById("evolution").addEventListener("mouseup", function() {
+  evolution_clicked = 1
+})
+
+
+function setup() {
+      width = 1470
+      height = 800
+      createCanvas(width, height).parent('sketch-container')
+      background(230)
+      rectMode(CENTER)
+    }
+
+    direction = 0
+    x = 200
+    y = 200
+    x2 = 205
+    y2 = 205
+
+    x3 = 200
+    y3 = 200
+    x4 = 195
+    y4 = 195
+    clicked = 0
+    
+
+    function draw() {
+      // Stroke()
+      strokeWeight(random(10, 15))
+      // FIRST BUG
+      if(clicked == 0 || (abs(x-mouseX)<20 && abs(y-mouseY)<20)) {
+        direction = direction+1*(Math.random()-0.5)
+      } else if ((x-mouseX)>0) {
+        // direction = atan(abs((y-mouseY))/abs((x-mouseX))) + 1*(Math.random()-0.5)
+        direction = atan((y-mouseY)/abs((x-mouseX))) + PI + 1*(Math.random()-0.5)
+      } else {
+        direction = atan((y-mouseY)/(x-mouseX)) + 1*(Math.random()-0.5)
+      }
+    
+
+      x2 = x + (3 * cos(direction))
+      y2 = y + (3 * sin(direction))
+
+      line(x, y, x2, y2)
+
+      if(x>width) {
+        x = 0
+      } else if(x<0) {
+        x = width
+      } else {
+        x = x2
+      }
+
+
+      if(y>height) {
+        y = 0
+      } else if(y<0) {
+        y = height
+      } else {
+        y = y2
+      }
+      strokeWeight(0)
+      fill(255, 255, 255, 5)
+      rect(width/2, height/2, width, height)
+
+    }
+
+    function mousePressed() {
+        clicked = 1
+    }
+
+    function mouseReleased() {
+        clicked = 0
+    }

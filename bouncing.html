@@ -18,6 +18,7 @@
 			ypos = height/4
 			yvelocity = 1
 			xvelocity = 5
+			// frameRate(10)
 		}
 
 		size = 50
@@ -38,9 +39,7 @@
 				yvelocity = -40
 
 				if(counter>1) {
-					mySound.pause();
-	        		mySound.currentTime = 0;
-	        		mySound.play();
+					playSound()
 	        		counter=0
 	        	} else {
 	        		console.log("hello")
@@ -55,9 +54,7 @@
 				xvelocity = -5
 
 				if(counter>1) {
-					mySound.pause();
-	        		mySound.currentTime = 0;
-	        		mySound.play();
+					playSound()
 	        		counter=0
 	        	} else {
 	        		console.log("hello")
@@ -69,9 +66,7 @@
 				xvelocity = 5
 
 				if(counter>1) {
-					mySound.pause();
-	        		mySound.currentTime = 0;
-	        		mySound.play();
+					playSound()
 	        		counter=0
 	        	} else {
 	        		console.log("hello")
@@ -79,11 +74,46 @@
 	        	}
 
 			}
-			circle(xpos, ypos, size)
+
+
+			fillColor = "white"
+
+			stretchX = 1
+			stretchY = 1
+			stretch()
+			fill(fillColor)
+			ellipse(xpos, ypos, size*stretchX, size*stretchY)
 
 			counter++
 			console.log(counter)
 
+		}
+
+		function playSound() {
+			mySound.pause();
+	        mySound.currentTime = 0;
+	        mySound.play();
+		}
+
+		function stretch() {
+			// going down
+			if(yvelocity>0) {
+				stretchY = yvelocity/120+1
+				stretchX = 2-stretchY
+			} 
+			// going up
+			else {
+				if(ypos>500) {
+					stretchX = 1.15
+					stretchY = 0.85
+				} else if(ypos>400) {
+					stretchX = 1
+					stretchY = 1
+				} else {
+					stretchY = (yvelocity/120)*(-1)+1
+					stretchX = 2-stretchY
+				}
+			}
 		}
 
 		
@@ -91,3 +121,4 @@
 	</script>
 </body>
 </html>
+<!-- added squishes to the ball -->

@@ -5,17 +5,33 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title></title>
 	<script src = "https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/p5.min.js"></script>
+	<style>
+		#test {
+			margin-top:-30px;
+			z-index: 100;
+		}
+
+		#sketch-container {
+			margin-top:0px;
+			z-index: 500;
+		}
+	</style>
 </head>
 <body>
+	<div id = "sketch-container"></div>
+	<div id="test">hello</div>
 	<script>
 		
 		function setup() {
-			createCanvas(400, 400)
-			background(200)
+			width = 600
+			height = 600
+			createCanvas(width, height).parent('sketch-container')
+			background(230)
 			rectMode(CENTER)
 		}
 
 		direction = 0
+		direction2 = 0
 		x = 200
 		y = 200
 		x2 = 205
@@ -26,77 +42,92 @@
 		x4 = 195
 		y4 = 195
 		clicked = 0
+		
+		random_num = 0
+
+		first = 0
+
 
 		function draw() {
+			random_num = Math.random()
 			strokeWeight(random(1, 3))
-			// FIRST BUG
-			if(clicked == 0 || (abs(x-mouseX)<20 && abs(y-mouseY)<20)) {
-				direction = direction+1*(Math.random()-0.5)
-			} else if ((x-mouseX)>0) {
-				// direction = atan(abs((y-mouseY))/abs((x-mouseX))) + 1*(Math.random()-0.5)
-				direction = atan((y-mouseY)/abs((x-mouseX))) + PI + 2*(Math.random()-0.5)
-			} else {
-				direction = atan((y-mouseY)/(x-mouseX)) + 2*(Math.random()-0.5)
-			}
-		
-
-			x2 = x + (1 * cos(direction))
-			y2 = y + (1 * sin(direction))
-
-			line(x, y, x2, y2)
-
-			if(x>400) {
-				x = 0
-			} else if(x<0) {
-				x = 400
-			} else {
-				x = x2
-			}
-
-
-			if(y>400) {
-				y = 0
-			} else if(y<0) {
-				y = 400
-			} else {
-				y = y2
-			}
+			if(first/2 == round(first/2)) {
+				// FIRST BUG
+				if(clicked == 0 || (abs(x-mouseX)<20 && abs(y-mouseY)<20)) {
+					direction = direction+1*(Math.random()-0.5)
+				} else if ((x-mouseX)>0) {
+					// direction = atan(abs((y-mouseY))/abs((x-mouseX))) + 1*(Math.random()-0.5)
+					direction = atan((y-mouseY)/abs((x-mouseX))) + PI + 2*(Math.random()-0.5)
+				} else {
+					direction = atan((y-mouseY)/(x-mouseX)) + 2*(Math.random()-0.5)
+				}
 			
-			// // SECOND BUG
-			// if(clicked == 0) {
-			// 	direction = direction+1*(Math.random()-0.5)
-			// } else if ((x3-mouseX)>0) {
-			// 	// direction = atan(abs((y-mouseY))/abs((x-mouseX))) + 1*(Math.random()-0.5)
-			// 	direction = atan((y3-mouseY)/abs((x3-mouseX))) + PI
-			// } else {
-			// 	direction = atan((y3-mouseY)/(x3-mouseX))
-			// }
-		
 
-			// x4 = x3 + (1 * cos(direction))
-			// y4 = y3 + (1 * sin(direction))
+				x2 = x + (2 * cos(direction))
+				y2 = y + (2 * sin(direction))
 
-			// line(x3, y3, x4, y4)
+				line(x, y, x2, y2)
 
-			// if(x3>400) {
-			// 	x3 = 0
-			// } else if(x3<0) {
-			// 	x3 = 400
-			// } else {
-			// 	x3 = x4
-			// }
+				if(x>width) {
+					x = 0
+				} else if(x<0) {
+					x = width
+				} else {
+					x = x2
+				}
 
 
-			// if(y3>400) {
-			// 	y3 = 0
-			// } else if(y<0) {
-			// 	y3 = 400
-			// } else {
-			// 	y3 = y4
-			// }
+				if(y>height) {
+					y = 0
+				} else if(y<0) {
+					y = height
+				} else {
+					y = y2
+				}
+
+			}
+
+			else {
+				// SECOND BUG
+				if(clicked == 0 || (abs(x3-mouseX)<20 && abs(y3-mouseY)<20)) {
+					direction2 = direction2+1*(Math.random()-0.5)
+				} else if ((x3-mouseX)>0) {
+					// direction2 = atan(abs((y-mouseY))/abs((x-mouseX))) + 1*(Math.random()-0.5)
+					direction2 = atan((y3-mouseY)/abs((x3-mouseX))) + PI + 2*(Math.random()-0.5)
+				} else {
+					direction2 = atan((y3-mouseY)/(x3-mouseX)) + 2*(Math.random()-0.5)
+				}
+			
+
+				x4 = x3 + (2 * cos(direction2))
+				y4 = y3 + (2 * sin(direction2))
+
+				line(x3, y3, x4, y4)
+
+				if(x3>400) {
+					x3 = 0
+				} else if(x3<0) {
+					x3 = 400
+				} else {
+					x3 = x4
+				}
+
+
+				if(y3>400) {
+					y3 = 0
+				} else if(y<0) {
+					y3 = 400
+				} else {
+					y3 = y4
+				}
+
+			}
 
 			fill(255, 255, 255, 5)
-			square(200, 200, 400)
+			rect(width/2, height/2, width, height)
+
+			first++
+			// console.log(Math.random(), Math.random())
 
 			// noStroke()
 			// if(clicked == 1) {
@@ -111,6 +142,7 @@
 		function mouseReleased() {
   			clicked = 0
 		}
+
 
 	</script>
 </body>

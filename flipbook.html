@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+		#myImage {
+			width:300px;
+			height:auto;
+		}
+	</style>
+</head>
+<body>
+	<img src="1.jpg" id="myImage"></img>
+
+	<script>
+		which_image = 2
+		// 22-50, 71-77, 51-70, 78-85
+		// console.log("IMG_" + String(1823) + ".jpg")
+		// document.getElementById("myImage").src = "IMG_" + String(1824) + ".jpg"
+
+		// for(let i = 0; i<38; i++) {
+		// 	document.getElementById("myImage").src = "IMG_" + String(which_image) + ".jpg"
+			
+  				
+			
+
+		// 	which_image++
+		// 	console.log("change")
+		// }
+
+
+		setInterval(() => {
+  			document.getElementById("myImage").src = String(Math.round(which_image)) + ".jpg"
+
+  			if(which_image == 34) {
+  				which_image-=0.6
+  			// } else if (which_image >= 53 && which_image <= 60) {
+  			// 	which_image-=0.5
+  			} else if (Math.round(which_image) == 60){
+  				which_image--
+  			}
+  			// 	which_image = 1870
+  			// } else if (which_image == 1877) {
+  			// 	which_image = 1850
+  			// } else if (which_image == 1870) {
+  			// 	which_image = 1877
+  			// } else {
+  			// 	which_image = 1885
+  			// }
+			which_image++
+		}, 500);
+	</script>
+</body>
+</html>

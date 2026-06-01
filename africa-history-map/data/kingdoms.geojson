@@ -1,0 +1,215 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+
+   
+
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Mali Empire",
+        "polity_type": "state",
+        "start_year": 1235,
+        "end_year": 1600,
+        "region": "West Africa",
+        "color": "#c9a227",
+        "description": "Major West African empire controlling trans-Saharan trade."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-12.5, 12.5], [-6.5, 12.0], [-5.5, 16.0],
+          [-9.0, 18.0], [-12.5, 15.0], [-12.5, 12.5]
+        ]]
+      }
+    },
+
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Songhai Empire",
+        "polity_type": "state",
+        "start_year": 1464,
+        "end_year": 1591,
+        "region": "West Africa",
+        "color": "#2a9d8f",
+        "description": "Large Sahel empire centered on Gao and the Niger River."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-12.0, 13.0], [-4.0, 14.0], [-5.0, 19.0],
+          [-11.5, 18.0], [-12.0, 13.0]
+        ]]
+      }
+    },
+
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kingdom of Kongo",
+        "polity_type": "state",
+        "start_year": 1390,
+        "end_year": 1914,
+        "region": "Central Africa",
+        "color": "#6a4c93",
+        "description": "Central African kingdom engaged in Atlantic trade networks."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [12.0, -2.0], [17.0, -2.0], [16.5, -8.5],
+          [12.5, -9.0], [11.5, -6.0], [12.0, -2.0]
+        ]]
+      }
+    },
+
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ethiopian Empire",
+        "polity_type": "state",
+        "start_year": 1270,
+        "end_year": 1974,
+        "region": "Horn of Africa",
+        "color": "#264653",
+        "description": "Long-lasting empire maintaining sovereignty through the colonial era."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [37.0, 5.0], [43.0, 5.0], [42.5, 12.0],
+          [38.0, 12.0], [37.0, 5.0]
+        ]]
+      }
+    },
+
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ashanti Empire",
+        "polity_type": "state",
+        "start_year": 1701,
+        "end_year": 1901,
+        "region": "West Africa",
+        "color": "#e76f51",
+        "description": "Wealthy gold-based empire resisting British expansion."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-3.5, 6.0], [-1.0, 6.0], [-1.0, 8.5],
+          [-3.5, 8.5], [-3.5, 6.0]
+        ]]
+      }
+    },
+
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kanem-Bornu Empire",
+        "polity_type": "state",
+        "start_year": 700,
+        "end_year": 1893,
+        "region": "Lake Chad / Sahel",
+        "color": "#f4a261",
+        "description": "Long-lasting Sahel empire controlling trans-Saharan trade routes."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [10.0, 10.0], [15.5, 10.0], [15.0, 14.5],
+          [11.0, 14.5], [10.0, 10.0]
+        ]]
+      }
+    },
+
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Zulu Kingdom",
+        "polity_type": "state",
+        "start_year": 1816,
+        "end_year": 1897,
+        "region": "Southern Africa",
+        "color": "#8ecae6",
+        "description": "Military kingdom under Shaka Zulu in southern Africa."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [30.0, -27.0], [33.0, -27.0],
+          [33.0, -30.0], [30.0, -30.0],
+          [30.0, -27.0]
+        ]]
+      }
+    },
+
+  
+
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Swahili Coast City-States",
+        "polity_type": "city_state",
+        "start_year": 900,
+        "end_year": 1500,
+        "region": "East African Coast",
+        "color": "#90be6d",
+        "description": "Indian Ocean trading city-states including Kilwa, Mombasa, and Zanzibar."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [39.0, -4.0], [42.0, -4.0],
+          [42.0, -8.5], [39.0, -8.5],
+          [39.0, -4.0]
+        ]]
+      }
+    },
+
+
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sahara Trans-Saharan Trade Zone",
+        "polity_type": "influence_zone",
+        "start_year": 800,
+        "end_year": 1800,
+        "region": "Sahara",
+        "color": "#d4a373",
+        "description": "Trade corridor connecting West Africa, North Africa, and the Mediterranean."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-17.0, 15.0], [30.0, 15.0],
+          [30.0, 25.0], [-17.0, 25.0],
+          [-17.0, 15.0]
+        ]]
+      }
+    },
+
+ 
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sahelian Pastoral Zones",
+        "polity_type": "non_state",
+        "start_year": 500,
+        "end_year": 1900,
+        "region": "Sahel",
+        "color": "#adb5bd",
+        "description": "Nomadic and semi-nomadic pastoral societies across the Sahel belt."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-17.0, 12.0], [35.0, 12.0],
+          [35.0, 18.0], [-17.0, 18.0],
+          [-17.0, 12.0]
+        ]]
+      }
+    }
+  ]
+}

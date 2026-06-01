@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+		#words {
+			font-size: 100px;
+			width:1000px;
+			height:110px;
+			background-color:gray;
+			border-radius:50px;
+			text-align: center;
+		}
+
+		#input {
+			field-sizing: content;
+			overflow-wrap: break-word; 
+			width:99%;
+			height:700px;
+
+		}
+	</style>
+</head>
+<body>
+	<input id = "input"></input>
+	<div id = "words"></div>
+	<script>
+		let reading = ""
+		// string_reading = reading.replaceAll(" ", "','");
+		// let list_reading = "['" + string_reading + "']"
+		// console.log(list_reading)
+		readingList = reading.split(" "); 
+
+		let word = 0
+		let period = 0
+		setInterval(() => {
+  			document.getElementById("words").innerText = readingList[word]
+
+  			
+  			currentWord = readingList[word]
+  			if(currentWord.charAt(currentWord.length - 1) == "." && period < 3) {
+  				word--
+  				period++
+  				console.log("period")
+  			} else {
+  				period = 0
+  				console.log("reset")
+  			}
+  			word++
+  			console.log(word)
+		}, 100);
+	</script>
+</body>
+</html>
