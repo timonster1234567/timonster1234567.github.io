@@ -24,14 +24,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Pages
-        uses: workflows/pages-templates/actions/deploy-pages@v1
-        
+        uses: actions/configure-pages@v5
+
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # This specifies exactly what to upload. 
-          # We tell it to exclude the entire Trading folder from the website build.
           path: '.'
+          # Explicitly tell GitHub to act like the Trading folder isn't there
           exclude: |
             Trading/**
 
