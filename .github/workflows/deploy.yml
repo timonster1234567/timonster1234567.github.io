@@ -22,7 +22,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+        with:
+          # This tells git to ignore the Trading folder completely during checkout
+          sparse-checkout: |
+            /*
+            !Trading
+            
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
@@ -30,9 +35,6 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
-          # Explicitly tell GitHub to act like the Trading folder isn't there
-          exclude: |
-            Trading/**
 
       - name: Deploy to GitHub Pages
         id: deployment
